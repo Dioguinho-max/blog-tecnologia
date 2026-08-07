@@ -63,8 +63,12 @@ nav a:hover {
 /* ÁREA DOS POSTS */
 .posts {
     width: 90%;
-    max-width: 900px;
-    margin: auto;
+    max-width: 1200px;
+    margin: 40px auto;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
 }
 
 /* CARD */
