@@ -1,0 +1,126 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CORPO */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* CABEÇALHO */
+header {
+    background-color: #2563eb;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin-bottom: 15px;
+}
+
+/* MENU */
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: #dbeafe;
+}
+
+/* BANNER */
+.banner {
+    background: white;
+    width: 90%;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 50px 30px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.banner h2 {
+    color: #2563eb;
+}
+
+/* ÁREA DOS POSTS */
+.posts {
+    width: 90%;
+    max-width: 900px;
+    margin: auto;
+}
+
+/* CARD */
+.post {
+    background: white;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.post h3 {
+    color: #2563eb;
+    margin-bottom: 10px;
+}
+
+.post p {
+    margin-bottom: 15px;
+}
+
+/* BOTÃO */
+.botao {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.botao:hover {
+    background: #1d4ed8;
+}
+
+/* RODAPÉ */
+footer {
+    background: #2563eb;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .banner {
+        padding: 30px 20px;
+    }
+
+    .post {
+        padding: 15px;
+    }
+}
