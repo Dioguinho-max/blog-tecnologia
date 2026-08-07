@@ -5,7 +5,7 @@
 
 // Mensagem ao carregar o site
 window.addEventListener("load", () => {
-    console.log("✅ Bem-vindo ao Tech & IA Blog!");
+    console.log(" Bem-vindo ao Tech & IA Blog!");
 });
 
 // Seleciona todos os links do menu
