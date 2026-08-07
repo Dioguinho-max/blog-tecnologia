@@ -124,3 +124,9 @@ footer {
         padding: 15px;
     }
 }
+
+/* Link do menu ativo */
+nav a.ativo {
+    border-bottom: 2px solid white;
+    padding-bottom: 4px;
+}
