@@ -64,20 +64,6 @@ Banco de Dados (Supabase PostgreSQL)
 
 ---
 
-📁 Estrutura do projeto
-
-blog-tecnologia/
-├── backend/           # API e lógica do servidor
-├── posts/             # Páginas de artigos
-├── images/            # Imagens do blog
-├── admin.html         # Painel administrativo
-├── index.html         # Página inicial
-├── style.css          # Estilos globais
-├── script.js          # Scripts do frontend
-├── .env               # Variáveis de ambiente (não versionar)
-└── render.yaml        # Configuração de deploy
-
----
 
 🚀 Melhorias futuras
 
