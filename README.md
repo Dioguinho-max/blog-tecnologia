@@ -1,34 +1,113 @@
-# Tech & IA Blog
+# 🚀 Tech & IA Blog
 
-Blog full-stack de tecnologia. A interface funciona de forma estática como fallback e consome automaticamente a API quando ela está disponível.
+> Conteúdo direto e acessível sobre tecnologia, programação, Linux, APIs e Inteligência Artificial. 💻🤖
 
-## Executar localmente
+🔗 **Acesse o blog:** [blog-tecnologia-two.vercel.app](https://blog-tecnologia-two.vercel.app/)
 
-1. Instale as dependências: `npm install`.
-2. Copie `.env.example` para `.env` e preencha a URL de conexão PostgreSQL do Supabase.
-3. Para login, defina `ADMIN_PASSWORD_HASH` como hash bcrypt. Gere um com `node -e "require('bcryptjs').hash('SUA_SENHA', 12).then(console.log)"`.
-4. Inicie com `npm run dev` e acesse `http://localhost:3000`.
+## ✨ Sobre o projeto
 
-## API
+O **Tech & IA Blog** nasceu como um projeto de aprendizado em HTML, CSS e JavaScript. Hoje, ele evoluiu para uma aplicação full-stack, com posts dinâmicos, painel administrativo e banco de dados.
 
-| Método | Rota | Acesso |
+O objetivo é compartilhar conhecimento para quem está começando e quer evoluir na área de tecnologia. 📚
+
+## 🌟 Recursos
+
+- 📰 Posts dinâmicos organizados por categoria;
+- 🔎 Busca em tempo real e filtros de conteúdo;
+- 🌙 Modo escuro no blog, artigos e painel administrativo;
+- 📱 Layout responsivo para desktop e celular;
+- 🧑‍💻 Blocos de código com botão para copiar;
+- 🔐 Área administrativa com login;
+- ✍️ Criação, edição, publicação e exclusão de posts;
+- ⚡ API REST protegida por JWT;
+- 🗄️ Dados armazenados no Supabase PostgreSQL.
+
+## 🧰 Tecnologias
+
+| Área | Tecnologias |
+| --- | --- |
+| Frontend | HTML, CSS e JavaScript puro |
+| Backend | Node.js e Express |
+| Banco de dados | Supabase PostgreSQL |
+| Hospedagem do frontend | Vercel |
+| Hospedagem da API | Render |
+
+## 🏗️ Arquitetura
+
+```text
+Visitante
+   ↓
+Vercel (site e painel)
+   ↓
+Render (API REST)
+   ↓
+Supabase (PostgreSQL)
+```
+
+## 📁 Estrutura do projeto
+
+```text
+blog-tecnologia/
+├── backend/          # API Express, autenticação e banco de dados
+├── posts/            # Páginas de artigos
+├── imagens/          # Imagens locais do blog
+├── admin.html        # Painel administrativo
+├── index.html        # Página inicial
+├── style.css         # Estilos globais
+├── script.js         # Interações do frontend
+└── render.yaml       # Configuração de deploy da API
+```
+
+## 💻 Executar localmente
+
+```bash
+npm install
+```
+
+Crie um arquivo `.env` na raiz do projeto e adicione suas variáveis:
+
+```env
+DATABASE_URL=sua-url-do-supabase
+JWT_SECRET=uma-chave-longa-e-segura
+ADMIN_EMAIL=seu-email@exemplo.com
+ADMIN_PASSWORD_HASH=seu-hash-bcrypt
+```
+
+Depois, inicie o projeto:
+
+```bash
+npm run dev
+```
+
+Abra no navegador:
+
+```text
+http://localhost:3000
+http://localhost:3000/admin.html
+```
+
+## 🔌 Rotas da API
+
+| Método | Rota | Descrição |
 | --- | --- | --- |
-| GET | `/api/posts?search=&categoria=&page=&limit=` | Público |
-| GET | `/api/posts/:id` | Público |
-| POST | `/api/posts` | Admin (Bearer token) |
-| PUT | `/api/posts/:id` | Admin (Bearer token) |
-| DELETE | `/api/posts/:id` | Admin (Bearer token) |
-| POST | `/api/auth/login` | Público |
+| `GET` | `/api/posts` | Lista posts publicados |
+| `GET` | `/api/posts/:id` | Exibe um post específico |
+| `POST` | `/api/posts` | Cria um post (admin) |
+| `PUT` | `/api/posts/:id` | Edita um post (admin) |
+| `DELETE` | `/api/posts/:id` | Exclui um post (admin) |
 
-O backend deve ser hospedado em um serviço com Node.js, como Render, Railway ou VPS. GitHub Pages atende apenas ao frontend estático.
+## 🔒 Segurança
 
-## Deploy no Render
+As credenciais ficam apenas nas variáveis de ambiente. Nunca envie `.env`, senhas, `DATABASE_URL` ou tokens para o GitHub. 🔐
 
-O arquivo `render.yaml` já configura o deploy da aplicação inteira — frontend e API no mesmo endereço.
+## 🎯 Próximos passos
 
-1. Envie este repositório para o GitHub.
-2. No [Render](https://render.com), selecione **New +** → **Blueprint** e conecte o repositório.
-3. Preencha `DATABASE_URL`, `ADMIN_EMAIL` e `ADMIN_PASSWORD_HASH` nas variáveis de ambiente. O `JWT_SECRET` é gerado automaticamente.
-4. Faça o deploy. A verificação de saúde estará em `/api/health`.
+- [ ] Paginação de posts;
+- [ ] Tags e artigos relacionados;
+- [ ] Upload de imagens;
+- [ ] SEO avançado e sitemap;
+- [ ] Integrações de IA para resumos e sugestões de títulos.
 
-Não envie o arquivo `.env` ao GitHub: ele já está protegido pelo `.gitignore`.
+---
+
+Feito com dedicação para aprender e compartilhar tecnologia. ⭐
