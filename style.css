@@ -27,7 +27,8 @@ button, input { font: inherit; }
 
 .site-header { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
 .header-content { width: min(1120px, 90%); min-height: 72px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.brand { color: var(--text); font-size: 1.3rem; font-weight: 800; letter-spacing: -.04em; text-decoration: none; }
+.brand { color: var(--text); font-size: 1.3rem; font-weight: 800; letter-spacing: -.04em; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.brand img { width: 42px; height: 42px; object-fit: contain; }
 .brand span, .eyebrow { color: var(--primary); }
 .main-nav { display: flex; align-items: center; gap: 22px; }
 .header-actions { display: flex; align-items: center; gap: 16px; }
