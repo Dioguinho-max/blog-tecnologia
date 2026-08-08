@@ -99,17 +99,17 @@ main > .post h3:first-child { margin-top: 0; }
 main > .post p, main > .post li { color: var(--muted); }
 main > .post ul { padding-left: 24px; }
 .article-image { width: 100%; max-height: 420px; margin-bottom: 28px; border-radius: 10px; object-fit: cover; }
-.article-hero { color: #fff; background: radial-gradient(circle at 85% 15%, rgba(56, 189, 248, .45), transparent 30%), linear-gradient(125deg, #0f172a, #1e40af); }
-.article-hero-inner { width: min(900px, 90%); margin: auto; padding: clamp(58px, 9vw, 108px) 0 70px; }
-.breadcrumb { display: inline-block; margin-bottom: 32px; color: #dbeafe; font-size: .92rem; font-weight: 700; text-decoration: none; }
-.breadcrumb:hover { color: #fff; text-decoration: underline; }
-.article-hero .tag { color: #dbeafe; background: rgba(255, 255, 255, .14); }
-.article-hero h1 { max-width: 860px; margin: 16px 0 20px; font-size: clamp(2.35rem, 6vw, 4.6rem); letter-spacing: -.055em; line-height: 1.04; }
-.article-summary { max-width: 700px; color: #dbeafe; font-size: clamp(1.05rem, 2vw, 1.25rem); }
-.article-meta-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 28px; color: #bfdbfe; font-size: .9rem; font-weight: 700; }
-.article-layout { width: min(900px, 90%); margin: -38px auto 80px; }
-.article-cover { display: block; width: 100%; max-height: 500px; margin-bottom: 36px; border: 6px solid var(--surface); border-radius: 18px; box-shadow: var(--shadow); object-fit: cover; }
-.article-prose { width: min(730px, 100%); margin: auto; padding: clamp(25px, 5vw, 50px); background: var(--surface); border: 1px solid var(--border); border-radius: 15px; box-shadow: 0 4px 14px rgba(15, 23, 42, .05); }
+.article-hero { position: relative; min-height: 235px; margin-bottom: 106px; display: flex; justify-content: center; align-items: end; overflow: visible; background: linear-gradient(125deg, #0f172a, #1e40af); }
+.article-hero::after { position: absolute; inset: 0; z-index: 1; content: ""; background: linear-gradient(90deg, rgba(15, 23, 42, .65), rgba(15, 23, 42, .22)); }
+.article-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .75; }
+.article-title-card { position: relative; z-index: 2; width: min(760px, 90%); padding: clamp(24px, 4vw, 38px); margin-bottom: -76px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 13px; box-shadow: var(--shadow); text-align: center; }
+.breadcrumb { display: inline-block; margin-bottom: 18px; color: var(--muted); font-size: .86rem; font-weight: 700; text-decoration: none; }.breadcrumb:hover { color: var(--primary); text-decoration: underline; }
+.article-hero .tag { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+.article-hero h1 { max-width: 680px; margin: 13px auto; font-size: clamp(1.9rem, 4.2vw, 3.1rem); letter-spacing: -.045em; line-height: 1.1; }
+.article-summary { max-width: 620px; margin: auto; color: var(--muted); font-size: 1rem; }
+.article-meta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; margin-top: 18px; color: var(--primary); font-size: .83rem; font-weight: 800; }
+.article-layout { width: min(760px, 90%); margin: 0 auto 80px; }
+.article-prose { width: min(680px, 100%); margin: auto; padding: 0; background: transparent; }
 .article-prose p { margin-bottom: 1.45em; color: var(--text); font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.06rem, 1.8vw, 1.19rem); line-height: 1.85; }
 .article-prose p:last-of-type { margin-bottom: 0; }
 .article-prose h2 { margin: 2.5em 0 .65em; color: var(--text); font-size: clamp(1.4rem, 3vw, 1.85rem); letter-spacing: -.035em; line-height: 1.2; }
@@ -139,8 +139,8 @@ body > footer:not(.site-footer) { padding: 25px 5%; color: #cbd5e1; background: 
     .search-field { width: 100%; }
     .posts-grid { grid-template-columns: repeat(2, 1fr); }
     .admin-layout { grid-template-columns: 1fr; }
-    .article-layout { margin-top: -22px; }
-    .article-cover { border-width: 4px; border-radius: 12px; }
+    .article-hero { min-height: 190px; margin-bottom: 86px; }
+    .article-title-card { margin-bottom: -62px; }
 }
 @media (max-width: 540px) {
     .header-content { min-height: 64px; }
