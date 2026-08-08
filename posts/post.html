@@ -16,6 +16,7 @@
     </header>
     <main id="dynamic-post"><p class="empty-state">Carregando artigo...</p></main>
     <footer class="site-footer"><p>© 2026 Tech &amp; IA Blog.</p></footer>
+    <script src="../config.js"></script>
     <script>
         const id = new URLSearchParams(window.location.search).get("id");
         const container = document.querySelector("#dynamic-post");
@@ -23,7 +24,7 @@
         if (!id) {
             container.innerHTML = '<p class="empty-state">Artigo inválido.</p>';
         } else {
-            fetch(`/api/posts/${encodeURIComponent(id)}`)
+            fetch(`${window.TECH_IA_API_URL || "/api"}/posts/${encodeURIComponent(id)}`)
                 .then((response) => response.ok ? response.json() : Promise.reject())
                 .then((post) => {
                     document.title = `${post.titulo} | Tech & IA Blog`;

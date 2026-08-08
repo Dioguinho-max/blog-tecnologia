@@ -1,4 +1,4 @@
-const api = "/api";
+const api = window.TECH_IA_API_URL || "/api";
 const tokenKey = "tech-ia-admin-token";
 const loginPanel = document.querySelector("#login-panel");
 const adminPanel = document.querySelector("#admin-panel");

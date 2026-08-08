@@ -35,6 +35,7 @@ const searchInput = document.querySelector("#search-posts");
 const filters = document.querySelectorAll(".filter");
 const count = document.querySelector("#results-count");
 const emptyState = document.querySelector("#empty-state");
+const apiBase = window.TECH_IA_API_URL || "/api";
 let activeCategory = "Todos";
 let posts = fallbackPosts;
 
@@ -54,7 +55,7 @@ function normalizePost(post) {
 
 async function loadPostsFromApi() {
     try {
-        const response = await fetch("/api/posts?limit=50");
+        const response = await fetch(`${apiBase}/posts?limit=50`);
         if (!response.ok) throw new Error("API indisponível");
         const data = await response.json();
         if (data.posts?.length) posts = data.posts.map(normalizePost);
