@@ -1,131 +1,73 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech & IA Blog</title>
-
+    <meta name="description" content="Artigos e tutoriais sobre tecnologia, inteligência artificial, Linux e desenvolvimento web.">
+    <meta name="theme-color" content="#2563eb">
+    <title>Tech & IA Blog | Tecnologia e Inteligência Artificial</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-    <header>
-
-        <h1> Tech & IA Blog</h1>
-
-        <nav>
-            <a href="#" class="ativo">Início</a>
-            <a href="#">Tecnologia</a>
-            <a href="#">IA</a>
-            <a href="#">Sobre</a>
-        </nav>
-
+    <header class="site-header">
+        <div class="header-content">
+            <a class="brand" href="index.html" aria-label="Tech & IA Blog - Início">Tech <span>&amp; IA</span> Blog</a>
+            <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-nav">
+                <span></span><span></span><span></span>
+            </button>
+            <nav id="main-nav" class="main-nav" aria-label="Navegação principal">
+                <a href="#inicio" class="ativo">Início</a>
+                <a href="#posts" data-category="Tecnologia">Tecnologia</a>
+                <a href="#posts" data-category="IA">IA</a>
+                <a href="sobre.html">Sobre</a>
+                <button class="theme-toggle" type="button" aria-label="Ativar modo escuro" title="Alternar tema">☾</button>
+            </nav>
+        </div>
     </header>
 
     <main>
-
-        <!-- Banner -->
-
-        <section class="banner">
-
-            <h2>Compartilhando conhecimento sobre Tecnologia e Inteligência Artificial</h2>
-
-            <p>
-                Bem-vindo ao Tech & IA Blog! Aqui você encontrará artigos,
-                tutoriais e novidades sobre programação, Inteligência Artificial,
-                Linux, desenvolvimento web e muito mais.
-            </p>
-
+        <section id="inicio" class="hero">
+            <p class="eyebrow">Tecnologia sem complicação</p>
+            <h1>Conhecimento para acompanhar o futuro.</h1>
+            <p>Artigos práticos sobre inteligência artificial, Linux, desenvolvimento web e as ferramentas que movem o mundo digital.</p>
+            <a class="button button-light" href="#posts">Explorar artigos</a>
         </section>
 
-        <!-- Posts -->
-
-        <section class="posts">
-
-            <!-- Post 1 -->
-
-            <div class="post">
-
-                <img src="imagens/ia.jpg" alt="Inteligência Artificial">
-
-                <h3>O que é Inteligência Artificial?</h3>
-
-                <p class="data">
-                     07 de Agosto de 2026
-                </p>
-
-                <p>
-                    Descubra o que é Inteligência Artificial,
-                    como ela funciona e por que está transformando o mundo.
-                </p>
-
-                <a href="posts/inteligencia-artificial.html" class="botao">
-                    Ler mais
-                </a>
-
+        <section class="featured" aria-labelledby="featured-title">
+            <div class="section-heading">
+                <p class="eyebrow">Em destaque</p>
+                <h2 id="featured-title">Comece por aqui</h2>
             </div>
-
-            <!-- Post 2 -->
-
-            <div class="post">
-
-                <img src="imagens/linux.png" alt="Linux">
-
-                <h3>Primeiros passos no Linux</h3>
-
-                <p class="data">
-                     05 de Agosto de 2026
-                </p>
-
-                <p>
-                    Conheça o sistema operacional Linux e aprenda
-                    os primeiros comandos essenciais do terminal.
-                </p>
-
-                <a href="posts/linux.html" class="botao">
-                    Ler mais
-                </a>
-
-            </div>
-
-            <!-- Post 3 -->
-
-            <div class="post">
-
-                <img src="imagens/api.jpeg" alt="API">
-
-                <h3>O que é uma API?</h3>
-
-                <p class="data">
-                     02 de Agosto de 2026
-                </p>
-
-                <p>
-                    Entenda como diferentes sistemas se comunicam
-                    por meio das APIs e por que elas são fundamentais
-                    para o funcionamento da internet moderna.
-                </p>
-
-                <a href="posts/api.html" class="botao">
-                    Ler mais
-                </a>
-
-            </div>
-
+            <article id="featured-post" class="featured-card"></article>
         </section>
 
+        <section id="posts" class="posts-section" aria-labelledby="posts-title">
+            <div class="posts-toolbar">
+                <div>
+                    <p class="eyebrow">Conteúdo recente</p>
+                    <h2 id="posts-title">Todos os artigos</h2>
+                </div>
+                <label class="search-field" for="search-posts">
+                    <span class="sr-only">Buscar artigos</span>
+                    <span aria-hidden="true">⌕</span>
+                    <input id="search-posts" type="search" placeholder="Buscar assunto..." autocomplete="off">
+                </label>
+            </div>
+            <div class="filters" aria-label="Filtrar artigos por categoria">
+                <button class="filter active" type="button" data-category="Todos">Todos</button>
+                <button class="filter" type="button" data-category="IA">Inteligência Artificial</button>
+                <button class="filter" type="button" data-category="Linux">Linux</button>
+                <button class="filter" type="button" data-category="Web">Desenvolvimento Web</button>
+            </div>
+            <p id="results-count" class="results-count" aria-live="polite"></p>
+            <div id="posts-grid" class="posts-grid"></div>
+            <p id="empty-state" class="empty-state" hidden>Nenhum artigo encontrado. Tente outro termo ou categoria.</p>
+        </section>
     </main>
 
-    <footer>
-
-        <p>© 2026 Tech & IA Blog - Todos os direitos reservados.</p>
-
+    <footer class="site-footer">
+        <p>© <span id="current-year">2026</span> Tech &amp; IA Blog. Feito para quem gosta de aprender.</p>
     </footer>
-
     <script src="script.js"></script>
-
 </body>
-
 </html>
