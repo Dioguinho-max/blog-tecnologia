@@ -28,7 +28,8 @@
                 .then((response) => response.ok ? response.json() : Promise.reject())
                 .then((post) => {
                     document.title = `${post.titulo} | Tech & IA Blog`;
-                    container.innerHTML = `<section class="banner"><p class="eyebrow">${escapeHtml(post.categoria)}</p><h1>${escapeHtml(post.titulo)}</h1><p>Publicado em ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt))}</p></section><article class="post">${post.imagem ? `<img class="article-image" src="${escapeHtml(post.imagem)}" alt="${escapeHtml(post.imagemAlt || post.titulo)}">` : ""}<p>${escapeHtml(post.conteudo).replace(/\n/g, "<br>")}</p><br><a class="button button-primary" href="../index.html">← Voltar aos artigos</a></article>`;
+                    const imageUrl = post.imagem && !/^https?:\/\//.test(post.imagem) ? `../${post.imagem.replace(/^\//, "")}` : post.imagem;
+                    container.innerHTML = `<section class="banner"><p class="eyebrow">${escapeHtml(post.categoria)}</p><h1>${escapeHtml(post.titulo)}</h1><p>Publicado em ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt))}</p></section><article class="post">${imageUrl ? `<img class="article-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(post.imagemAlt || post.titulo)}">` : ""}<p>${escapeHtml(post.conteudo).replace(/\n/g, "<br>")}</p><br><a class="button button-primary" href="../index.html">← Voltar aos artigos</a></article>`;
                 })
                 .catch(() => { container.innerHTML = '<p class="empty-state">Não foi possível carregar este artigo.</p>'; });
         }

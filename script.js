@@ -48,7 +48,7 @@ function normalizePost(post) {
         alt: post.imagemAlt || post.titulo,
         excerpt: post.resumo,
         // A página dinâmica pode usar este identificador quando for implementada.
-        link: `posts/post.html?id=${post._id}`,
+        link: `posts/post.html?id=${post.id}`,
         featured: post.destaque
     };
 }
