@@ -1,4 +1,4 @@
-const posts = [
+const fallbackPosts = [
     {
         title: "O que é Inteligência Artificial?",
         date: "07 de Agosto de 2026",
@@ -36,6 +36,33 @@ const filters = document.querySelectorAll(".filter");
 const count = document.querySelector("#results-count");
 const emptyState = document.querySelector("#empty-state");
 let activeCategory = "Todos";
+let posts = fallbackPosts;
+
+function normalizePost(post) {
+    return {
+        title: post.titulo,
+        date: new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt)),
+        category: post.categoria,
+        image: post.imagem || "imagens/ia.jpg",
+        alt: post.imagemAlt || post.titulo,
+        excerpt: post.resumo,
+        // A página dinâmica pode usar este identificador quando for implementada.
+        link: `posts/post.html?id=${post._id}`,
+        featured: post.destaque
+    };
+}
+
+async function loadPostsFromApi() {
+    try {
+        const response = await fetch("/api/posts?limit=50");
+        if (!response.ok) throw new Error("API indisponível");
+        const data = await response.json();
+        if (data.posts?.length) posts = data.posts.map(normalizePost);
+    } catch {
+        // O blog continua funcional em hospedagens estáticas, como GitHub Pages.
+        posts = fallbackPosts;
+    }
+}
 
 function postCard(post) {
     return `<article class="post-card">
@@ -110,5 +137,8 @@ setTheme(localStorage.getItem("tech-ia-theme") === "dark");
 themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));
 
 document.querySelector("#current-year").textContent = new Date().getFullYear();
-renderFeatured();
-renderPosts();
+
+loadPostsFromApi().finally(() => {
+    renderFeatured();
+    renderPosts();
+});

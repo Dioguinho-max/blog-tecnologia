@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Artigo do Tech & IA Blog.">
+    <title>Artigo | Tech & IA Blog</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <a class="brand" href="../index.html">Tech <span>&amp; IA</span> Blog</a>
+            <nav class="main-nav about-nav" aria-label="Navegação principal"><a href="../index.html">Início</a><a href="../index.html#posts">Artigos</a></nav>
+        </div>
+    </header>
+    <main id="dynamic-post"><p class="empty-state">Carregando artigo...</p></main>
+    <footer class="site-footer"><p>© 2026 Tech &amp; IA Blog.</p></footer>
+    <script>
+        const id = new URLSearchParams(window.location.search).get("id");
+        const container = document.querySelector("#dynamic-post");
+        const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+        if (!id) {
+            container.innerHTML = '<p class="empty-state">Artigo inválido.</p>';
+        } else {
+            fetch(`/api/posts/${encodeURIComponent(id)}`)
+                .then((response) => response.ok ? response.json() : Promise.reject())
+                .then((post) => {
+                    document.title = `${post.titulo} | Tech & IA Blog`;
+                    container.innerHTML = `<section class="banner"><p class="eyebrow">${escapeHtml(post.categoria)}</p><h1>${escapeHtml(post.titulo)}</h1><p>Publicado em ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt))}</p></section><article class="post">${post.imagem ? `<img class="article-image" src="${escapeHtml(post.imagem)}" alt="${escapeHtml(post.imagemAlt || post.titulo)}">` : ""}<p>${escapeHtml(post.conteudo).replace(/\n/g, "<br>")}</p><br><a class="button button-primary" href="../index.html">← Voltar aos artigos</a></article>`;
+                })
+                .catch(() => { container.innerHTML = '<p class="empty-state">Não foi possível carregar este artigo.</p>'; });
+        }
+    </script>
+</body>
+</html>
