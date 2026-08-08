@@ -21,6 +21,7 @@
         const id = new URLSearchParams(window.location.search).get("id");
         const container = document.querySelector("#dynamic-post");
         const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+        const formatContent = (content) => escapeHtml(content).split(/\n\s*\n/).filter(Boolean).map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br>")}</p>`).join("");
         if (!id) {
             container.innerHTML = '<p class="empty-state">Artigo inválido.</p>';
         } else {
@@ -29,7 +30,9 @@
                 .then((post) => {
                     document.title = `${post.titulo} | Tech & IA Blog`;
                     const imageUrl = post.imagem && !/^https?:\/\//.test(post.imagem) ? `../${post.imagem.replace(/^\//, "")}` : post.imagem;
-                    container.innerHTML = `<section class="banner"><p class="eyebrow">${escapeHtml(post.categoria)}</p><h1>${escapeHtml(post.titulo)}</h1><p>Publicado em ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt))}</p></section><article class="post">${imageUrl ? `<img class="article-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(post.imagemAlt || post.titulo)}">` : ""}<p>${escapeHtml(post.conteudo).replace(/\n/g, "<br>")}</p><br><a class="button button-primary" href="../index.html">← Voltar aos artigos</a></article>`;
+                    const publishedAt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt));
+                    const readingTime = Math.max(1, Math.ceil(post.conteudo.trim().split(/\s+/).length / 220));
+                    container.innerHTML = `<section class="article-hero"><div class="article-hero-inner"><a class="breadcrumb" href="../index.html#posts">← Todos os artigos</a><span class="tag">${escapeHtml(post.categoria)}</span><h1>${escapeHtml(post.titulo)}</h1><p class="article-summary">${escapeHtml(post.resumo)}</p><div class="article-meta-row"><span>${publishedAt}</span><span aria-hidden="true">•</span><span>${readingTime} min de leitura</span></div></div></section><div class="article-layout">${imageUrl ? `<img class="article-cover" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(post.imagemAlt || post.titulo)}">` : ""}<article class="article-prose">${formatContent(post.conteudo)}<div class="article-end"><a class="button button-primary" href="../index.html#posts">← Ver mais artigos</a></div></article></div>`;
                 })
                 .catch(() => { container.innerHTML = '<p class="empty-state">Não foi possível carregar este artigo.</p>'; });
         }
