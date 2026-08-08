@@ -25,7 +25,7 @@ async function loadPosts() {
     const response = await fetch(`${api}/posts/admin/all`, { headers: authHeaders() });
     if (!response.ok) { localStorage.removeItem(tokenKey); location.reload(); return; }
     const { posts } = await response.json();
-    list.innerHTML = posts.length ? posts.map((post) => `<article class="admin-post"><div><strong>${escapeHtml(post.titulo)}</strong><p>${escapeHtml(post.categoria)} · ${post.publicado ? "Publicado" : "Rascunho"}</p></div><div><button class="filter" data-edit="${encodeURIComponent(JSON.stringify(post))}" type="button">Editar</button><button class="filter danger" data-delete="${post._id}" type="button">Excluir</button></div></article>`).join("") : "<p>Nenhum post cadastrado.</p>";
+    list.innerHTML = posts.length ? posts.map((post) => `<article class="admin-post"><div><strong>${escapeHtml(post.titulo)}</strong><p>${escapeHtml(post.categoria)} · ${post.publicado ? "Publicado" : "Rascunho"}</p></div><div><button class="filter" data-edit="${encodeURIComponent(JSON.stringify(post))}" type="button">Editar</button><button class="filter danger" data-delete="${post.id}" type="button">Excluir</button></div></article>`).join("") : "<p>Nenhum post cadastrado.</p>";
 }
 loginForm.addEventListener("submit", async (event) => {
     event.preventDefault(); message("#login-message", "Entrando...");
