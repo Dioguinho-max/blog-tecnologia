@@ -58,47 +58,7 @@ blog-tecnologia/
 └── render.yaml       # Configuração de deploy da API
 ```
 
-## 💻 Executar localmente
-
-```bash
-npm install
-```
-
-Crie um arquivo `.env` na raiz do projeto e adicione suas variáveis:
-
-```env
-DATABASE_URL=sua-url-do-supabase
-JWT_SECRET=uma-chave-longa-e-segura
-ADMIN_EMAIL=seu-email@exemplo.com
-ADMIN_PASSWORD_HASH=seu-hash-bcrypt
-```
-
-Depois, inicie o projeto:
-
-```bash
-npm run dev
-```
-
-Abra no navegador:
-
-```text
-http://localhost:3000
-http://localhost:3000/admin.html
-```
-
-## 🔌 Rotas da API
-
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `GET` | `/api/posts` | Lista posts publicados |
-| `GET` | `/api/posts/:id` | Exibe um post específico |
-| `POST` | `/api/posts` | Cria um post (admin) |
-| `PUT` | `/api/posts/:id` | Edita um post (admin) |
-| `DELETE` | `/api/posts/:id` | Exclui um post (admin) |
-
-## 🔒 Segurança
-
-As credenciais ficam apenas nas variáveis de ambiente. Nunca envie `.env`, senhas, `DATABASE_URL` ou tokens para o GitHub. 🔐
+---
 
 ## 🎯 Próximos passos
 
