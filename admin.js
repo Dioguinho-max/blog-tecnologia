@@ -8,6 +8,17 @@ const list = document.querySelector("#admin-post-list");
 const message = (id, text, error = false) => { const el = document.querySelector(id); el.textContent = text; el.classList.toggle("error", error); };
 const authHeaders = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem(tokenKey)}` });
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+const themeToggle = document.querySelector(".theme-toggle");
+
+function setTheme(isDark) {
+    document.body.classList.toggle("dark-theme", isDark);
+    themeToggle.textContent = isDark ? "☀" : "☾";
+    themeToggle.setAttribute("aria-label", isDark ? "Ativar modo claro" : "Ativar modo escuro");
+    localStorage.setItem("tech-ia-theme", isDark ? "dark" : "light");
+}
+
+setTheme(localStorage.getItem("tech-ia-theme") === "dark");
+themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));
 
 function showAdmin() { loginPanel.hidden = true; adminPanel.hidden = false; loadPosts(); }
 async function loadPosts() {

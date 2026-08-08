@@ -30,6 +30,7 @@ button, input { font: inherit; }
 .brand { color: var(--text); font-size: 1.3rem; font-weight: 800; letter-spacing: -.04em; text-decoration: none; }
 .brand span, .eyebrow { color: var(--primary); }
 .main-nav { display: flex; align-items: center; gap: 22px; }
+.header-actions { display: flex; align-items: center; gap: 16px; }
 .main-nav a { color: var(--muted); font-size: .94rem; font-weight: 700; text-decoration: none; }
 .main-nav a:hover, .main-nav a.ativo { color: var(--primary); }
 .theme-toggle, .menu-toggle { border: 0; cursor: pointer; }

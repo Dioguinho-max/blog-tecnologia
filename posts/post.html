@@ -11,13 +11,22 @@
     <header class="site-header">
         <div class="header-content">
             <a class="brand" href="../index.html">Tech <span>&amp; IA</span> Blog</a>
-            <nav class="main-nav about-nav" aria-label="Navegação principal"><a href="../index.html">Início</a><a href="../index.html#posts">Artigos</a></nav>
+            <div class="header-actions"><nav class="main-nav about-nav" aria-label="Navegação principal"><a href="../index.html">Início</a><a href="../index.html#posts">Artigos</a></nav><button class="theme-toggle" type="button" aria-label="Ativar modo escuro" title="Alternar tema">☾</button></div>
         </div>
     </header>
     <main id="dynamic-post"><p class="empty-state">Carregando artigo...</p></main>
     <footer class="site-footer"><p>© 2026 Tech &amp; IA Blog.</p></footer>
     <script src="../config.js"></script>
     <script>
+        const themeToggle = document.querySelector(".theme-toggle");
+        function setTheme(isDark) {
+            document.body.classList.toggle("dark-theme", isDark);
+            themeToggle.textContent = isDark ? "☀" : "☾";
+            themeToggle.setAttribute("aria-label", isDark ? "Ativar modo claro" : "Ativar modo escuro");
+            localStorage.setItem("tech-ia-theme", isDark ? "dark" : "light");
+        }
+        setTheme(localStorage.getItem("tech-ia-theme") === "dark");
+        themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));
         const id = new URLSearchParams(window.location.search).get("id");
         const container = document.querySelector("#dynamic-post");
         const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
