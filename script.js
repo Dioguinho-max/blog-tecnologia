@@ -1,33 +1,4 @@
-const fallbackPosts = [
-    {
-        title: "O que é Inteligência Artificial?",
-        date: "07 de Agosto de 2026",
-        category: "IA",
-        image: "imagens/ia.jpg",
-        alt: "Representação visual de Inteligência Artificial",
-        excerpt: "Descubra o que é Inteligência Artificial, como ela funciona e por que está transformando o mundo.",
-        link: "posts/inteligencia-artificial.html",
-        featured: true
-    },
-    {
-        title: "Primeiros passos no Linux",
-        date: "05 de Agosto de 2026",
-        category: "Linux",
-        image: "imagens/linux.png",
-        alt: "Mascote Tux, símbolo do Linux",
-        excerpt: "Conheça o sistema operacional Linux e aprenda os primeiros comandos essenciais do terminal.",
-        link: "posts/linux.html"
-    },
-    {
-        title: "O que é uma API?",
-        date: "02 de Agosto de 2026",
-        category: "Web",
-        image: "imagens/api.jpeg",
-        alt: "Conexão entre sistemas por uma API",
-        excerpt: "Entenda como diferentes sistemas se comunicam por meio das APIs e por que elas são fundamentais.",
-        link: "posts/api.html"
-    }
-];
+const fallbackPosts = [];
 
 const grid = document.querySelector("#posts-grid");
 const featuredContainer = document.querySelector("#featured-post");
@@ -58,10 +29,11 @@ async function loadPostsFromApi() {
         const response = await fetch(`${apiBase}/posts?limit=50`);
         if (!response.ok) throw new Error("API indisponível");
         const data = await response.json();
-        if (data.posts?.length) posts = data.posts.map(normalizePost);
-    } catch {
-        // O blog continua funcional em hospedagens estáticas, como GitHub Pages.
-        posts = fallbackPosts;
+        posts = data.posts?.length ? data.posts.map(normalizePost) : [];
+    } catch (error) {
+        console.error('Erro ao carregar post:', error );
+        posts = [];
+        
     }
 }
 
@@ -79,26 +51,54 @@ function postCard(post) {
 }
 
 function renderPosts() {
-    const term = searchInput.value.trim().toLocaleLowerCase("pt-BR");
-    const visiblePosts = posts.filter((post) => {
-        const matchesCategory = activeCategory === "Todos" || post.category === activeCategory;
-        const content = `${post.title} ${post.category} ${post.excerpt}`.toLocaleLowerCase("pt-BR");
-        return matchesCategory && content.includes(term);
-    });
-    grid.innerHTML = visiblePosts.map(postCard).join("");
-    emptyState.hidden = visiblePosts.length > 0;
-    count.textContent = `${visiblePosts.length} ${visiblePosts.length === 1 ? "artigo encontrado" : "artigos encontrados"}`;
+  if (!posts.length) {
+    grid.innerHTML = `<p class="empty-message">Nenhum artigo ainda.</p>`;
+    count.textContent = "0 artigos encontrados";
+    emptyState.hidden = false;
+    return;
+  }
+
+  const term = searchInput.value.trim().toLocaleLowerCase("pt-BR");
+
+  const visiblePosts = posts.filter((post) => {
+    const matchesCategory =
+      activeCategory === "Todos" || post.category === activeCategory;
+
+    const content = `${post.title} ${post.category} ${post.excerpt}`.toLocaleLowerCase("pt-BR");
+
+    return matchesCategory && content.includes(term);
+  });
+
+  grid.innerHTML = visiblePosts.map(postCard).join("");
+
+  emptyState.hidden = visiblePosts.length > 0;
+
+  count.textContent = `${visiblePosts.length} ${
+    visiblePosts.length === 1
+      ? "artigo encontrado"
+      : "artigos encontrados"
+  }`;
 }
 
 function renderFeatured() {
-    const post = posts.find((item) => item.featured) || posts[0];
-    featuredContainer.innerHTML = `<img src="${post.image}" alt="${post.alt}">
-        <div class="featured-content">
-            <span class="tag">${post.category} · Artigo em destaque</span>
-            <h3>${post.title}</h3>
-            <p>${post.excerpt}</p>
-            <a class="button button-primary" href="${post.link}">Ler artigo <span aria-hidden="true">→</span></a>
-        </div>`;
+  if (!posts.length) {
+    featuredContainer.innerHTML = "<p>Nenhum artigo em destaque.</p>";
+    return;
+  }
+
+  const post = posts.find((item) => item.featured) || posts[0];
+
+  featuredContainer.innerHTML = `
+    <img src="${post.image}" alt="${post.alt}">
+    <div class="featured-content">
+      <span class="tag">${post.category} · Artigo em destaque</span>
+      <h3>${post.title}</h3>
+      <p>${post.excerpt}</p>
+      <a class="button button-primary" href="${post.link}">
+        Ler artigo <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  `;
 }
 
 filters.forEach((filter) => {
