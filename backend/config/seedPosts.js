@@ -1,5 +1,5 @@
 const { pool } = require("./database");
-//const initialPosts = require("../data/initialPosts");
+const initialPosts = require("../data/initialPosts");
 
 async function seedPosts() {
     for (const post of initialPosts) {
