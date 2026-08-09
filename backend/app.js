@@ -6,9 +6,11 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const postRoutes = require("./routes/postRoutes");
 const authRoutes = require("./routes/authRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.CLIENT_URL?.split(",") || true }));
 app.use(express.json({ limit: "1mb" }));
@@ -18,6 +20,7 @@ app.use(express.static(path.join(__dirname, "..")));
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/chat", chatRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

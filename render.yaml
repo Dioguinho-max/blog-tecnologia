@@ -20,3 +20,7 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_MODEL
+        value: "Qwen/Qwen2.5-7B-Instruct:fastest"

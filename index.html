@@ -79,7 +79,7 @@
             <div class="ai-identity"><span class="ai-logo" aria-hidden="true">✦</span><div><strong>Tech &amp; IA</strong><small>Assistente do blog</small></div></div>
             <button id="ai-close" class="ai-close" type="button" aria-label="Fechar assistente">×</button>
         </header>
-        <div class="ai-messages" aria-live="polite">
+        <div id="ai-messages" class="ai-messages" aria-live="polite">
             <div class="ai-message ai-message-assistant">
                 <span class="ai-message-avatar" aria-hidden="true">✦</span>
                 <p>Olá! Em breve vou ajudar você com tecnologia, IA, Linux e programação. 👋</p>
@@ -87,10 +87,10 @@
         </div>
         <form id="ai-form" class="ai-composer">
             <label class="sr-only" for="ai-input">Faça uma pergunta</label>
-            <textarea id="ai-input" rows="1" placeholder="Pergunte à Tech & IA..." disabled></textarea>
-            <button type="submit" aria-label="Enviar mensagem" disabled>➤</button>
+            <textarea id="ai-input" rows="1" placeholder="Pergunte à Tech & IA..."></textarea>
+            <button id="ai-send" type="submit" aria-label="Enviar mensagem">➤</button>
         </form>
-        <p class="ai-status">Assistente em preparação ✨</p>
+        <p class="ai-status">Enter envia · Shift + Enter quebra a linha</p>
     </aside>
     <div id="ai-backdrop" class="ai-backdrop" hidden></div>
 

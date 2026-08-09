@@ -29,6 +29,15 @@ O objetivo do projeto é documentar a jornada de aprendizado em tecnologia e aju
 - Painel administrativo protegido
 - Criação, edição e exclusão de posts
 - Integração com banco de dados PostgreSQL (Supabase)
+- Assistente Tech & IA com Hugging Face
+
+---
+
+🤖 Assistente Tech & IA
+
+O chatbot responde perguntas sobre tecnologia, IA, Linux, APIs e programação. A chave da IA fica somente no backend.
+
+Para ativá-lo em produção, adicione `HF_TOKEN` nas variáveis de ambiente do Render. O token deve ter a permissão **Make calls to Inference Providers** no Hugging Face. Nunca envie esse token ao GitHub ou ao Vercel.
 
 ---
 
