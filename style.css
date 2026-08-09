@@ -109,8 +109,8 @@ main > .post ul { padding-left: 24px; }
 .article-hero h1 { max-width: 680px; margin: 13px auto; font-size: clamp(1.9rem, 4.2vw, 3.1rem); letter-spacing: -.045em; line-height: 1.1; }
 .article-summary { max-width: 620px; margin: auto; color: var(--muted); font-size: 1rem; }
 .article-meta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; margin-top: 18px; color: var(--primary); font-size: .83rem; font-weight: 800; }
-.article-layout { width: min(1100px, 90%); margin: 0 auto 80px; }
-.article-prose { width: min(900px, 100%); margin: auto; padding: 0; background: transparent; }
+.article-layout { width: min(1300px, 92%); margin: 0 auto 80px; }
+.article-prose { width: min(1000px, 100%); margin: auto; padding: 0; background: transparent; }
 .article-prose p { margin-bottom: 1.45em; color: var(--text); font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.06rem, 1.8vw, 1.19rem); line-height: 1.85; }
 .article-prose p:last-of-type { margin-bottom: 0; }
 .article-prose h2 { margin: 2.5em 0 .65em; color: var(--text); font-size: clamp(1.4rem, 3vw, 1.85rem); letter-spacing: -.035em; line-height: 1.2; }
