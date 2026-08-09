@@ -4,7 +4,7 @@ document.body.insertAdjacentHTML("beforeend", `
     <button id="ai-launcher" class="ai-launcher" type="button" aria-label="Abrir assistente Tech & IA" aria-expanded="false" aria-controls="ai-panel"><span aria-hidden="true">✦</span><span>IA</span></button>
     <aside id="ai-panel" class="ai-panel" aria-label="Assistente Tech & IA" aria-hidden="true">
         <header class="ai-header"><div class="ai-identity"><span class="ai-logo" aria-hidden="true">✦</span><div><strong>Tech &amp; IA</strong><small>Assistente do blog</small></div></div><button id="ai-close" class="ai-close" type="button" aria-label="Fechar assistente">×</button></header>
-        <div id="ai-messages" class="ai-messages" aria-live="polite"><div class="ai-message ai-message-assistant"><span class="ai-message-avatar" aria-hidden="true">✦</span><p>Olá! Como posso ajudar você com tecnologia hoje? 👋</p></div></div>
+        <div id="ai-messages" class="ai-messages" aria-live="polite"><div class="ai-message ai-message-assistant"><span class="ai-message-avatar" aria-hidden="true">✦</span><p>Olá! Como posso ajudar você com tecnologia hoje? 👋</p></div><div id="ai-suggestions" class="ai-suggestions" aria-label="Sugestões de perguntas"></div></div>
         <form id="ai-form" class="ai-composer"><label class="sr-only" for="ai-input">Faça uma pergunta</label><textarea id="ai-input" rows="1" placeholder="Pergunte à Tech & IA..."></textarea><button id="ai-send" type="submit" aria-label="Enviar mensagem">➤</button></form>
         <p class="ai-status">Enter envia · Shift + Enter quebra a linha</p>
     </aside>
@@ -19,7 +19,51 @@ const aiForm = document.querySelector("#ai-form");
 const aiMessages = document.querySelector("#ai-messages");
 const aiInput = document.querySelector("#ai-input");
 const aiSend = document.querySelector("#ai-send");
+const aiSuggestions = document.querySelector("#ai-suggestions");
 let chatHistory = [];
+const DAILY_LIMIT = 10;
+
+function getArticleContext() {
+    const context = window.TECH_IA_ARTICLE_CONTEXT;
+    if (!context?.title || !context?.content) return null;
+    return { title: context.title, summary: context.summary || "", content: context.content.slice(0, 3500) };
+}
+
+function renderSuggestions() {
+    const context = getArticleContext();
+    const suggestions = context
+        ? [
+            { label: "Resumir este artigo", prompt: "Resuma este artigo em tópicos simples." },
+            { label: "Explique de forma simples", prompt: "Explique o assunto deste artigo de forma simples, como para um iniciante." },
+            { label: "Criar exercício", prompt: "Crie um exercício prático baseado neste artigo, sem entregar a resposta imediatamente." }
+        ]
+        : [
+            { label: "Por onde começar?", prompt: "Quais artigos do Tech & IA Blog você recomenda para quem está começando em tecnologia?" },
+            { label: "Explicar Linux", prompt: "Explique o que é Linux de forma simples." },
+            { label: "O que é uma API?", prompt: "Explique o que é uma API com um exemplo simples." }
+        ];
+    aiSuggestions.replaceChildren(...suggestions.map(({ label, prompt }) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = label;
+        button.dataset.prompt = prompt;
+        return button;
+    }));
+}
+
+function getDailyUsage() {
+    const key = "tech-ia-chat-usage";
+    const today = new Date().toISOString().slice(0, 10);
+    const saved = JSON.parse(localStorage.getItem(key) || "{}");
+    return saved.date === today ? saved : { date: today, count: 0 };
+}
+
+function consumeDailyUsage() {
+    const usage = getDailyUsage();
+    if (usage.count >= DAILY_LIMIT) return false;
+    localStorage.setItem("tech-ia-chat-usage", JSON.stringify({ ...usage, count: usage.count + 1 }));
+    return true;
+}
 
 function setAiPanelOpen(isOpen) {
     aiPanel.classList.toggle("open", isOpen);
@@ -50,9 +94,27 @@ function setChatLoading(isLoading) {
     aiSend.textContent = isLoading ? "…" : "➤";
 }
 
+async function typeAssistantMessage(content) {
+    const message = addChatMessage("assistant", "");
+    const text = message.querySelector("p");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        text.textContent = content;
+        return;
+    }
+    for (let index = 0; index < content.length; index += 4) {
+        text.textContent = content.slice(0, index + 4);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+        await new Promise((resolve) => setTimeout(resolve, 14));
+    }
+}
+
 async function sendChatMessage() {
     const message = aiInput.value.trim();
     if (!message || aiInput.disabled) return;
+    if (!consumeDailyUsage()) {
+        addChatMessage("assistant", "Você atingiu o limite diário de 10 mensagens deste navegador. Volte amanhã para continuar. ✨");
+        return;
+    }
     addChatMessage("user", message);
     const historyForRequest = chatHistory.slice(-8);
     chatHistory.push({ role: "user", content: message });
@@ -62,11 +124,11 @@ async function sendChatMessage() {
     const typing = addChatMessage("assistant", "A IA está digitando...");
     typing.classList.add("ai-typing");
     try {
-        const response = await fetch(`${chatApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history: historyForRequest }) });
+        const response = await fetch(`${chatApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history: historyForRequest, articleContext: getArticleContext() }) });
         const data = await response.json().catch(() => ({}));
         typing.remove();
         if (!response.ok) throw new Error(data.message || "Não foi possível obter uma resposta.");
-        addChatMessage("assistant", data.reply);
+        await typeAssistantMessage(data.reply);
         chatHistory.push({ role: "assistant", content: data.reply });
     } catch (error) {
         typing.remove();
@@ -83,4 +145,12 @@ aiBackdrop.addEventListener("click", () => setAiPanelOpen(false));
 aiForm.addEventListener("submit", (event) => { event.preventDefault(); sendChatMessage(); });
 aiInput.addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendChatMessage(); } });
 aiInput.addEventListener("input", () => { aiInput.style.height = "auto"; aiInput.style.height = `${Math.min(aiInput.scrollHeight, 110)}px`; });
+aiSuggestions.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-prompt]");
+    if (!button || aiInput.disabled) return;
+    aiInput.value = button.dataset.prompt;
+    sendChatMessage();
+});
 document.addEventListener("keydown", (event) => { if (event.key === "Escape" && aiPanel.classList.contains("open")) setAiPanelOpen(false); });
+window.addEventListener("techiaarticlecontext", renderSuggestions);
+renderSuggestions();

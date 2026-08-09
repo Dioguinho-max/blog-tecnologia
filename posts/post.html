@@ -71,6 +71,8 @@
                 .then((response) => response.ok ? response.json() : Promise.reject())
                 .then((post) => {
                     document.title = `${post.titulo} | Tech & IA Blog`;
+                    window.TECH_IA_ARTICLE_CONTEXT = { title: post.titulo, summary: post.resumo, content: post.conteudo };
+                    window.dispatchEvent(new Event("techiaarticlecontext"));
                     const imageUrl = post.imagem && !/^https?:\/\//.test(post.imagem) ? `../${post.imagem.replace(/^\//, "")}` : post.imagem;
                     const publishedAt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt));
                     const readingTime = Math.max(1, Math.ceil(post.conteudo.trim().split(/\s+/).length / 220));

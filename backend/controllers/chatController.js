@@ -1,7 +1,9 @@
-const MAX_MESSAGE_LENGTH = 1200;
-const MAX_HISTORY_MESSAGES = 8;
-const RATE_WINDOW_MS = 60 * 1000;
-const RATE_LIMIT = 12;
+const MAX_MESSAGE_LENGTH = 800;
+const MAX_HISTORY_MESSAGES = 4;
+const MAX_CONTEXT_LENGTH = 3500;
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const RATE_LIMIT = Math.min(Math.max(Number(process.env.CHAT_RATE_LIMIT) || 8, 1), 50);
+const MAX_TOKENS = Math.min(Math.max(Number(process.env.CHAT_MAX_TOKENS) || 280, 64), 500);
 const requestLog = new Map();
 
 const systemPrompt = `Você é a assistente do Tech & IA Blog. Responda sempre em português do Brasil, de forma didática, objetiva e amigável. Seu foco é tecnologia, programação, Linux, APIs e Inteligência Artificial. Use blocos de código Markdown quando isso ajudar. Não invente fatos e indique quando uma informação precisa ser verificada.`;
@@ -25,9 +27,18 @@ function cleanHistory(history) {
         .filter((item) => item.content);
 }
 
+function cleanArticleContext(context) {
+    if (!context || typeof context !== "object") return "";
+    const title = typeof context.title === "string" ? context.title.trim().slice(0, 180) : "";
+    const summary = typeof context.summary === "string" ? context.summary.trim().slice(0, 500) : "";
+    const content = typeof context.content === "string" ? context.content.trim().slice(0, MAX_CONTEXT_LENGTH) : "";
+    if (!title || !content) return "";
+    return `\n\nA pessoa está lendo o artigo "${title}" no Tech & IA Blog. Use o contexto abaixo somente para responder perguntas sobre ele. Se a pergunta não for relacionada, responda normalmente.\nResumo: ${summary}\nConteúdo: ${content}`;
+}
+
 async function chat(req, res, next) {
     try {
-        if (!isAllowed(req)) return res.status(429).json({ message: "Muitas mensagens enviadas. Aguarde um minuto e tente novamente." });
+        if (!isAllowed(req)) return res.status(429).json({ message: "Limite de mensagens atingido. Aguarde uma hora e tente novamente." });
 
         const message = typeof req.body.message === "string" ? req.body.message.trim() : "";
         if (!message || message.length > MAX_MESSAGE_LENGTH) {
@@ -45,8 +56,8 @@ async function chat(req, res, next) {
             },
             body: JSON.stringify({
                 model: process.env.HF_MODEL || "Qwen/Qwen2.5-7B-Instruct:fastest",
-                messages: [{ role: "system", content: systemPrompt }, ...cleanHistory(req.body.history), { role: "user", content: message }],
-                max_tokens: 500,
+                messages: [{ role: "system", content: systemPrompt + cleanArticleContext(req.body.articleContext) }, ...cleanHistory(req.body.history), { role: "user", content: message }],
+                max_tokens: MAX_TOKENS,
                 temperature: 0.4
             }),
             signal: AbortSignal.timeout(30000)

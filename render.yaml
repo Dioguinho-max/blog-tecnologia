@@ -24,3 +24,7 @@ services:
         sync: false
       - key: HF_MODEL
         value: "Qwen/Qwen2.5-7B-Instruct:fastest"
+      - key: CHAT_RATE_LIMIT
+        value: "8"
+      - key: CHAT_MAX_TOKENS
+        value: "280"
