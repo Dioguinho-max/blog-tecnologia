@@ -28,3 +28,5 @@ services:
         value: "8"
       - key: CHAT_MAX_TOKENS
         value: "340"
+      - key: CHAT_DAILY_LIMIT
+        value: "10"

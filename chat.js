@@ -3,8 +3,8 @@ const chatApiBase = window.TECH_IA_API_URL || "/api";
 document.body.insertAdjacentHTML("beforeend", `
     <button id="ai-launcher" class="ai-launcher" type="button" aria-label="Abrir assistente Tech & IA" aria-expanded="false" aria-controls="ai-panel"><span aria-hidden="true">✦</span><span>IA</span></button>
     <aside id="ai-panel" class="ai-panel" aria-label="Assistente Tech & IA" aria-hidden="true">
-        <header class="ai-header"><div class="ai-identity"><span class="ai-logo" aria-hidden="true">✦</span><div><strong>Tech &amp; IA</strong><small>Assistente do blog</small></div></div><button id="ai-close" class="ai-close" type="button" aria-label="Fechar assistente">×</button></header>
-        <div id="ai-messages" class="ai-messages" aria-live="polite"><div class="ai-message ai-message-assistant"><span class="ai-message-avatar" aria-hidden="true">✦</span><div class="ai-message-content"><p>Olá! Como posso ajudar você com tecnologia hoje? 👋</p></div></div><div id="ai-suggestions" class="ai-suggestions" aria-label="Sugestões de perguntas"></div></div>
+        <header class="ai-header"><div class="ai-identity"><span class="ai-logo" aria-hidden="true">✦</span><div><strong>Tech &amp; IA</strong><small>Assistente do blog</small></div></div><div class="ai-header-actions"><button id="ai-clear" class="ai-clear" type="button">Limpar</button><button id="ai-close" class="ai-close" type="button" aria-label="Fechar assistente">×</button></div></header>
+        <div id="ai-messages" class="ai-messages" aria-live="polite"><div id="ai-suggestions" class="ai-suggestions" aria-label="Sugestões de perguntas"></div></div>
         <form id="ai-form" class="ai-composer"><label class="sr-only" for="ai-input">Faça uma pergunta</label><textarea id="ai-input" rows="1" placeholder="Pergunte à Tech & IA..."></textarea><button id="ai-send" type="submit" aria-label="Enviar mensagem">➤</button></form>
         <p class="ai-status">Enter envia · Shift + Enter quebra a linha</p>
     </aside>
@@ -14,14 +14,43 @@ document.body.insertAdjacentHTML("beforeend", `
 const aiLauncher = document.querySelector("#ai-launcher");
 const aiPanel = document.querySelector("#ai-panel");
 const aiClose = document.querySelector("#ai-close");
+const aiClear = document.querySelector("#ai-clear");
 const aiBackdrop = document.querySelector("#ai-backdrop");
 const aiForm = document.querySelector("#ai-form");
 const aiMessages = document.querySelector("#ai-messages");
 const aiInput = document.querySelector("#ai-input");
 const aiSend = document.querySelector("#ai-send");
 const aiSuggestions = document.querySelector("#ai-suggestions");
-let chatHistory = [];
+const HISTORY_KEY = "tech-ia-chat-history";
+const SESSION_KEY = "tech-ia-chat-session";
+let chatHistory = loadChatHistory();
 const DAILY_LIMIT = 10;
+
+function loadChatHistory() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+        return Array.isArray(saved) ? saved.filter((item) => item && ["user", "assistant"].includes(item.role) && typeof item.content === "string").slice(-20) : [];
+    } catch { return []; }
+}
+
+function saveChatHistory() {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory.slice(-20)));
+}
+
+function rememberMessage(role, content) {
+    chatHistory.push({ role, content });
+    chatHistory = chatHistory.slice(-20);
+    saveChatHistory();
+}
+
+function getSessionId() {
+    let sessionId = localStorage.getItem(SESSION_KEY);
+    if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem(SESSION_KEY, sessionId);
+    }
+    return sessionId;
+}
 
 function getArticleContext() {
     const context = window.TECH_IA_ARTICLE_CONTEXT;
@@ -54,8 +83,10 @@ function renderSuggestions() {
 function getDailyUsage() {
     const key = "tech-ia-chat-usage";
     const today = new Date().toISOString().slice(0, 10);
-    const saved = JSON.parse(localStorage.getItem(key) || "{}");
-    return saved.date === today ? saved : { date: today, count: 0 };
+    try {
+        const saved = JSON.parse(localStorage.getItem(key) || "{}");
+        return saved.date === today ? saved : { date: today, count: 0 };
+    } catch { return { date: today, count: 0 }; }
 }
 
 function consumeDailyUsage() {
@@ -151,7 +182,7 @@ function addChatMessage(role, content) {
     text.className = "ai-message-content";
     renderChatContent(text, content);
     message.append(avatar, text);
-    aiMessages.append(message);
+    aiMessages.insertBefore(message, aiSuggestions);
     aiMessages.scrollTop = aiMessages.scrollHeight;
     return message;
 }
@@ -160,6 +191,10 @@ function setChatLoading(isLoading) {
     aiInput.disabled = isLoading;
     aiSend.disabled = isLoading;
     aiSend.textContent = isLoading ? "…" : "➤";
+}
+
+function updateUsageLabel(remaining = DAILY_LIMIT - getDailyUsage().count) {
+    document.querySelector(".ai-status").textContent = `${Math.max(remaining, 0)} de ${DAILY_LIMIT} mensagens disponíveis hoje`;
 }
 
 async function typeAssistantMessage(content) {
@@ -184,21 +219,23 @@ async function sendChatMessage() {
         addChatMessage("assistant", "Você atingiu o limite diário de 10 mensagens deste navegador. Volte amanhã para continuar. ✨");
         return;
     }
+    updateUsageLabel();
     addChatMessage("user", message);
-    const historyForRequest = chatHistory.slice(-8);
-    chatHistory.push({ role: "user", content: message });
+    const historyForRequest = chatHistory.slice(-4);
+    rememberMessage("user", message);
     aiInput.value = "";
     aiInput.style.height = "auto";
     setChatLoading(true);
     const typing = addChatMessage("assistant", "A IA está digitando...");
     typing.classList.add("ai-typing");
     try {
-        const response = await fetch(`${chatApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history: historyForRequest, articleContext: getArticleContext() }) });
+        const response = await fetch(`${chatApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history: historyForRequest, articleContext: getArticleContext(), sessionId: getSessionId() }) });
         const data = await response.json().catch(() => ({}));
         typing.remove();
         if (!response.ok) throw new Error(data.message || "Não foi possível obter uma resposta.");
         await typeAssistantMessage(data.reply);
-        chatHistory.push({ role: "assistant", content: data.reply });
+        rememberMessage("assistant", data.reply);
+        updateUsageLabel(data.remaining);
     } catch (error) {
         typing.remove();
         addChatMessage("assistant", error.message || "Ocorreu um erro ao conversar com a IA.");
@@ -210,6 +247,13 @@ async function sendChatMessage() {
 
 aiLauncher.addEventListener("click", () => setAiPanelOpen(true));
 aiClose.addEventListener("click", () => setAiPanelOpen(false));
+aiClear.addEventListener("click", () => {
+    chatHistory = [];
+    localStorage.removeItem(HISTORY_KEY);
+    aiMessages.replaceChildren(aiSuggestions);
+    addChatMessage("assistant", "Conversa limpa. Como posso ajudar você? 👋");
+    renderSuggestions();
+});
 aiBackdrop.addEventListener("click", () => setAiPanelOpen(false));
 aiForm.addEventListener("submit", (event) => { event.preventDefault(); sendChatMessage(); });
 aiInput.addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendChatMessage(); } });
@@ -223,3 +267,6 @@ aiSuggestions.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => { if (event.key === "Escape" && aiPanel.classList.contains("open")) setAiPanelOpen(false); });
 window.addEventListener("techiaarticlecontext", renderSuggestions);
 renderSuggestions();
+if (chatHistory.length) chatHistory.forEach((item) => addChatMessage(item.role, item.content));
+else addChatMessage("assistant", "Olá! Como posso ajudar você com tecnologia hoje? 👋");
+updateUsageLabel();

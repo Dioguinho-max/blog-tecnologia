@@ -4,7 +4,9 @@ const MAX_CONTEXT_LENGTH = 3500;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT = Math.min(Math.max(Number(process.env.CHAT_RATE_LIMIT) || 8, 1), 50);
 const MAX_TOKENS = Math.min(Math.max(Number(process.env.CHAT_MAX_TOKENS) || 340, 64), 500);
+const DAILY_LIMIT = Math.min(Math.max(Number(process.env.CHAT_DAILY_LIMIT) || 10, 1), 50);
 const requestLog = new Map();
+const { pool } = require("../config/database");
 
 const systemPrompt = `Você é a assistente do Tech & IA Blog. Responda sempre em português do Brasil, de forma didática, objetiva e amigável. Seu foco é tecnologia, programação, Linux, APIs e Inteligência Artificial. Use blocos de código Markdown quando isso ajudar. Não invente fatos e indique quando uma informação precisa ser verificada. Seja concisa: prefira no máximo 220 palavras ou 8 tópicos. Sempre conclua a última frase e nunca deixe uma resposta incompleta. Não use linhas separadoras como --- e não inclua explicações sobre o próprio limite de tokens.`;
 
@@ -36,6 +38,22 @@ function cleanArticleContext(context) {
     return `\n\nA pessoa está lendo o artigo "${title}" no Tech & IA Blog. Use o contexto abaixo somente para responder perguntas sobre ele. Se a pergunta não for relacionada, responda normalmente.\nResumo: ${summary}\nConteúdo: ${content}`;
 }
 
+function getSessionId(value) {
+    return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value) ? value : null;
+}
+
+async function consumeDailyQuota(sessionId) {
+    const result = await pool.query(`
+        INSERT INTO chat_usage (session_id, usage_date, request_count)
+        VALUES ($1, CURRENT_DATE, 1)
+        ON CONFLICT (session_id, usage_date) DO UPDATE
+        SET request_count = chat_usage.request_count + 1
+        WHERE chat_usage.request_count < $2
+        RETURNING request_count
+    `, [sessionId, DAILY_LIMIT]);
+    return result.rowCount ? { allowed: true, remaining: DAILY_LIMIT - result.rows[0].request_count } : { allowed: false, remaining: 0 };
+}
+
 function finishReply(reply, finishReason) {
     if (finishReason !== "length") return reply;
     const sentenceEnd = Math.max(reply.lastIndexOf("."), reply.lastIndexOf("!"), reply.lastIndexOf("?"));
@@ -56,6 +74,10 @@ async function chat(req, res, next) {
         if (!process.env.HF_TOKEN) {
             return res.status(503).json({ message: "O assistente ainda não foi configurado no servidor." });
         }
+        const sessionId = getSessionId(req.body.sessionId);
+        if (!sessionId) return res.status(400).json({ message: "Sessão de conversa inválida." });
+        const quota = await consumeDailyQuota(sessionId);
+        if (!quota.allowed) return res.status(429).json({ message: `Você atingiu o limite diário de ${DAILY_LIMIT} mensagens. Volte amanhã para continuar.` });
 
         const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
             method: "POST",
@@ -78,7 +100,7 @@ async function chat(req, res, next) {
         }
         const reply = data.choices?.[0]?.message?.content?.trim();
         if (!reply) return res.status(502).json({ message: "A IA retornou uma resposta inválida. Tente novamente." });
-        res.json({ reply: finishReply(reply, data.choices?.[0]?.finish_reason) });
+        res.json({ reply: finishReply(reply, data.choices?.[0]?.finish_reason), remaining: quota.remaining });
     } catch (error) {
         if (error.name === "TimeoutError") return res.status(504).json({ message: "A resposta da IA demorou demais. Tente novamente." });
         next(error);

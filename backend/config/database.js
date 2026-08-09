@@ -29,6 +29,14 @@ async function connectDatabase() {
     `);
     await pool.query("CREATE INDEX IF NOT EXISTS posts_publicados_em_idx ON posts (publicado, destaque DESC, created_at DESC)");
     await pool.query("CREATE INDEX IF NOT EXISTS posts_busca_idx ON posts USING GIN (to_tsvector('portuguese', titulo || ' ' || resumo || ' ' || categoria))");
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS chat_usage (
+            session_id UUID NOT NULL,
+            usage_date DATE NOT NULL DEFAULT CURRENT_DATE,
+            request_count INTEGER NOT NULL DEFAULT 0 CHECK (request_count >= 0),
+            PRIMARY KEY (session_id, usage_date)
+        )
+    `);
     console.log("PostgreSQL (Supabase) conectado.");
 }
 
