@@ -69,32 +69,8 @@
         <p>© <span id="current-year">2026</span> Tech &amp; IA Blog. Feito para quem gosta de aprender.</p>
     </footer>
 
-    <button id="ai-launcher" class="ai-launcher" type="button" aria-label="Abrir assistente Tech & IA" aria-expanded="false" aria-controls="ai-panel">
-        <span aria-hidden="true">✦</span>
-        <span>IA</span>
-    </button>
-
-    <aside id="ai-panel" class="ai-panel" aria-label="Assistente Tech & IA" aria-hidden="true">
-        <header class="ai-header">
-            <div class="ai-identity"><span class="ai-logo" aria-hidden="true">✦</span><div><strong>Tech &amp; IA</strong><small>Assistente do blog</small></div></div>
-            <button id="ai-close" class="ai-close" type="button" aria-label="Fechar assistente">×</button>
-        </header>
-        <div id="ai-messages" class="ai-messages" aria-live="polite">
-            <div class="ai-message ai-message-assistant">
-                <span class="ai-message-avatar" aria-hidden="true">✦</span>
-                <p>Olá! Em breve vou ajudar você com tecnologia, IA, Linux e programação. 👋</p>
-            </div>
-        </div>
-        <form id="ai-form" class="ai-composer">
-            <label class="sr-only" for="ai-input">Faça uma pergunta</label>
-            <textarea id="ai-input" rows="1" placeholder="Pergunte à Tech & IA..."></textarea>
-            <button id="ai-send" type="submit" aria-label="Enviar mensagem">➤</button>
-        </form>
-        <p class="ai-status">Enter envia · Shift + Enter quebra a linha</p>
-    </aside>
-    <div id="ai-backdrop" class="ai-backdrop" hidden></div>
-
     <script src="config.js"></script>
     <script src="script.js"></script>
+    <script src="chat.js"></script>
 </body>
 </html>
