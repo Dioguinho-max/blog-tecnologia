@@ -1,108 +1,223 @@
-🚀 Tech & IA Blog
+# 🚀 Tech & IA Blog
 
 Conteúdo direto, prático e acessível sobre tecnologia, programação, Linux, APIs e Inteligência Artificial.
 
-Acesse o blog:
+🌐 **Acesse o blog:**
 https://blog-tecnologia-two.vercel.app/
 
 ---
 
-✨ Sobre o projeto
+## ✨ Sobre o projeto
 
-O Tech & IA Blog começou como um projeto simples em HTML, CSS e JavaScript com foco em aprendizado.
+O **Tech & IA Blog** começou como um projeto simples desenvolvido com HTML, CSS e JavaScript, criado com o objetivo de estudar e compartilhar conhecimentos sobre tecnologia.
 
-Com o tempo, evoluiu para uma aplicação completa (full-stack), com backend, banco de dados e painel administrativo.
+Com o tempo, o projeto evoluiu para uma aplicação **full-stack**, incorporando backend, banco de dados PostgreSQL, API REST, autenticação administrativa e um assistente de Inteligência Artificial.
 
-O objetivo do projeto é documentar a jornada de aprendizado em tecnologia e ajudar iniciantes a evoluírem de forma prática e direta.
-
----
-
-🌟 Funcionalidades
-
-- Sistema de posts dinâmicos
-- Organização por categorias
-- Busca em tempo real
-- Filtros de conteúdo
-- Modo escuro (dark mode)
-- Layout responsivo (mobile e desktop)
-- Blocos de código com botão "copiar"
-- Painel administrativo protegido
-- Criação, edição e exclusão de posts
-- Integração com banco de dados PostgreSQL (Supabase)
-- Assistente Tech & IA com Hugging Face
+O objetivo é documentar uma jornada prática de aprendizado e criar um espaço onde conteúdos sobre tecnologia possam ser encontrados de forma simples, direta e acessível.
 
 ---
 
-🤖 Assistente Tech & IA
+## 🌟 Funcionalidades
 
-O chatbot responde perguntas sobre tecnologia, IA, Linux, APIs e programação. A chave da IA fica somente no backend.
+### 📰 Blog
 
-Para ativá-lo em produção, adicione `HF_TOKEN` nas variáveis de ambiente do Render. O token deve ter a permissão **Make calls to Inference Providers** no Hugging Face. Nunca envie esse token ao GitHub ou ao Vercel.
+* Sistema de posts dinâmicos
+* Posts armazenados no PostgreSQL
+* Organização por categorias
+* Artigo em destaque
+* Busca de artigos em tempo real
+* Filtros por categoria
+* Layout responsivo para mobile e desktop
+* Dark mode
+* Páginas individuais para os artigos
+* Layout editorial para leitura
+* Listas e tópicos
+* Blocos de código
+* Botão para copiar código
 
----
+### 🔐 Painel administrativo
 
-🧰 Tecnologias utilizadas
+* Login administrativo
+* Autenticação utilizando JWT
+* Senha protegida com bcrypt
+* Criação de posts
+* Edição de posts
+* Publicação de posts
+* Exclusão de posts
+* Gerenciamento dos conteúdos através da API
 
-Frontend:
-- HTML5
-- CSS3
-- JavaScript (Vanilla)
+### 🤖 Assistente ✦ Tech & IA
 
-Backend:
-- Node.js
-- Express
+O blog possui um assistente de Inteligência Artificial integrado à página inicial e às páginas dos artigos.
 
-Banco de dados:
-- Supabase (PostgreSQL)
+O assistente pode ajudar com:
 
-Deploy:
-- Vercel (Frontend)
-- Render (Backend)
+* Inteligência Artificial
+* Linux
+* Programação
+* Desenvolvimento web
+* APIs
+* Conceitos de tecnologia
+* Explicação de conteúdos técnicos
 
----
+Além das perguntas comuns, o assistente pode utilizar o **contexto do artigo atual** para fornecer respostas mais relevantes.
 
-🏗️ Arquitetura
+Também existem atalhos para:
 
-Usuário (browser)
-   ↓
-Frontend (Vercel)
-   ↓
-API (Render)
-   ↓
-Banco de Dados (Supabase PostgreSQL)
+* ✨ Resumir o artigo
+* 💡 Explicar o artigo de forma simples
+* 🧠 Explicar o conteúdo tecnicamente
 
----
-
-
-🚀 Melhorias futuras
-
-- Paginação de posts
-- Sistema de comentários
-- Upload de imagens direto no painel
-- Tags e artigos relacionados
-- SEO avançado (meta tags e sitemap)
-- Integração com IA para geração de conteúdo
-
----
-
-📚 Objetivo
-
-Este projeto não é apenas um blog, mas também um laboratório de aprendizado em desenvolvimento web.
-
-Cada funcionalidade adicionada representa evolução prática em:
-
-- Frontend
-- Backend
-- APIs
-- Banco de dados
-- Deploy
+As respostas possuem animação de digitação e formatação adequada para textos e códigos.
 
 ---
 
-⭐ Contribuição
+## 🧠 Contexto dos artigos
 
-Sinta-se livre para abrir issues ou contribuir com melhorias.
+Quando o assistente é utilizado dentro de um artigo, informações relevantes do conteúdo atual podem ser enviadas ao backend junto com a pergunta.
+
+```text
+Artigo atual
+     ↓
+Título + resumo + conteúdo relevante
+     ↓
+Backend
+     ↓
+Modelo de IA
+     ↓
+Resposta contextualizada
+```
+
+Isso permite perguntas como:
+
+> "Pode explicar essa parte de uma forma mais simples?"
+
+sem que o usuário precise copiar e colar todo o conteúdo do artigo.
 
 ---
 
-Feito para aprender, evoluir e compartilhar conhecimento em tecnologia.
+## 💬 Histórico do assistente
+
+O histórico das conversas pode ser armazenado localmente no navegador.
+
+O usuário pode:
+
+* Continuar uma conversa
+* Recarregar a página sem perder o histórico local
+* Limpar o histórico através do botão disponível no assistente
+
+O histórico local não depende de uma conta ou de armazenamento permanente no banco de dados.
+
+---
+
+## 🛡️ Segurança e controle de custos
+
+O assistente foi projetado para evitar uso excessivo da API de Inteligência Artificial.
+
+O backend possui controles para limitar:
+
+* Mensagens por dia
+* Mensagens por hora por IP
+* Tamanho máximo da pergunta
+* Quantidade de mensagens no histórico
+* Quantidade máxima de contexto enviado
+* Limite de tokens utilizados pela IA
+
+Esses limites são aplicados no **backend**, evitando depender apenas de validações no navegador.
+
+---
+
+## 🧰 Tecnologias utilizadas
+
+### Frontend
+
+* HTML5
+* CSS3
+* JavaScript (Vanilla)
+
+### Backend
+
+* Node.js
+* Express
+* API REST
+* JWT
+* bcrypt
+* Rate limiting
+
+### Banco de dados
+
+* Supabase
+* PostgreSQL
+
+### Inteligência Artificial
+
+* Hugging Face
+* Inference Providers
+* Modelo open-source
+
+### Deploy
+
+* Vercel — Frontend
+* Render — Backend
+* Supabase — Banco de dados
+
+---
+
+## 📚 Objetivo
+
+O **Tech & IA Blog** não é apenas um blog.
+
+Ele também funciona como um laboratório prático para estudar e experimentar tecnologias utilizadas no desenvolvimento de aplicações modernas.
+
+Cada funcionalidade representa uma etapa de aprendizado em:
+
+* Frontend
+* Backend
+* JavaScript
+* Node.js
+* Express
+* APIs REST
+* PostgreSQL
+* Supabase
+* Autenticação
+* Segurança
+* Deploy
+* Inteligência Artificial
+* Integração com modelos open-source
+
+---
+
+## ⭐ Contribuição
+
+Sinta-se livre para abrir **Issues**, sugerir melhorias ou contribuir com o projeto.
+
+Toda contribuição é bem-vinda, principalmente ideias relacionadas a:
+
+* Desenvolvimento web
+* Inteligência Artificial
+* Linux
+* APIs
+* Segurança
+* Performance
+* Experiência do usuário
+
+---
+
+## 📄 Licença
+
+Este projeto está licenciado sob a **MIT License**.
+
+Você pode usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e vender cópias do software, desde que o aviso de copyright e a licença sejam mantidos nas cópias ou partes substanciais do software.
+
+Consulte o arquivo [`LICENSE`](LICENSE) para ver o texto completo da licença.
+
+
+---
+
+## 💙 Feito para aprender
+
+O **Tech & IA Blog** nasceu da curiosidade por tecnologia e evoluiu junto com o aprendizado.
+
+> **Aprender, construir, testar e compartilhar.**
+
+🚀 Feito para quem gosta de tecnologia e quer evoluir junto com ela.
