@@ -4,7 +4,7 @@ document.body.insertAdjacentHTML("beforeend", `
     <button id="ai-launcher" class="ai-launcher" type="button" aria-label="Abrir assistente Tech & IA" aria-expanded="false" aria-controls="ai-panel"><span aria-hidden="true">✦</span><span>IA</span></button>
     <aside id="ai-panel" class="ai-panel" aria-label="Assistente Tech & IA" aria-hidden="true">
         <header class="ai-header"><div class="ai-identity"><span class="ai-logo" aria-hidden="true">✦</span><div><strong>Tech &amp; IA</strong><small>Assistente do blog</small></div></div><button id="ai-close" class="ai-close" type="button" aria-label="Fechar assistente">×</button></header>
-        <div id="ai-messages" class="ai-messages" aria-live="polite"><div class="ai-message ai-message-assistant"><span class="ai-message-avatar" aria-hidden="true">✦</span><p>Olá! Como posso ajudar você com tecnologia hoje? 👋</p></div><div id="ai-suggestions" class="ai-suggestions" aria-label="Sugestões de perguntas"></div></div>
+        <div id="ai-messages" class="ai-messages" aria-live="polite"><div class="ai-message ai-message-assistant"><span class="ai-message-avatar" aria-hidden="true">✦</span><div class="ai-message-content"><p>Olá! Como posso ajudar você com tecnologia hoje? 👋</p></div></div><div id="ai-suggestions" class="ai-suggestions" aria-label="Sugestões de perguntas"></div></div>
         <form id="ai-form" class="ai-composer"><label class="sr-only" for="ai-input">Faça uma pergunta</label><textarea id="ai-input" rows="1" placeholder="Pergunte à Tech & IA..."></textarea><button id="ai-send" type="submit" aria-label="Enviar mensagem">➤</button></form>
         <p class="ai-status">Enter envia · Shift + Enter quebra a linha</p>
     </aside>
@@ -73,6 +73,73 @@ function setAiPanelOpen(isOpen) {
     requestAnimationFrame(() => aiBackdrop.classList.toggle("visible", isOpen));
 }
 
+function appendInlineMarkdown(target, value) {
+    value.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).forEach((part) => {
+        const bold = part.match(/^\*\*(.+)\*\*$/);
+        if (bold) {
+            const strong = document.createElement("strong");
+            strong.textContent = bold[1];
+            target.append(strong);
+        } else {
+            target.append(document.createTextNode(part.replace(/^_(.+)_$/, "$1")));
+        }
+    });
+}
+
+function renderChatContent(container, content) {
+    let list = null;
+    let listType = null;
+    let codeBlock = null;
+
+    content.split("\n").forEach((rawLine) => {
+        const line = rawLine.trim();
+        if (/^```/.test(line)) {
+            if (codeBlock) { codeBlock = null; return; }
+            const pre = document.createElement("pre");
+            const code = document.createElement("code");
+            pre.append(code);
+            container.append(pre);
+            codeBlock = code;
+            list = null;
+            return;
+        }
+        if (codeBlock) {
+            codeBlock.textContent += `${rawLine}\n`;
+            return;
+        }
+        if (!line || /^[-—]{3,}$/.test(line)) { list = null; listType = null; return; }
+
+        const heading = line.match(/^#{1,3}\s+(.+)/);
+        const ordered = line.match(/^\d+[.)]\s+(.+)/);
+        const bullet = line.match(/^[-*]\s+(.+)/);
+        if (heading) {
+            const title = document.createElement("strong");
+            title.className = "ai-md-heading";
+            appendInlineMarkdown(title, heading[1]);
+            container.append(title);
+            list = null;
+            return;
+        }
+        if (ordered || bullet) {
+            const type = ordered ? "ol" : "ul";
+            if (!list || listType !== type) {
+                list = document.createElement(type);
+                listType = type;
+                container.append(list);
+            }
+            const item = document.createElement("li");
+            appendInlineMarkdown(item, (ordered || bullet)[1]);
+            list.append(item);
+            return;
+        }
+        const paragraph = document.createElement("p");
+        appendInlineMarkdown(paragraph, line);
+        container.append(paragraph);
+        list = null;
+        listType = null;
+    });
+}
+
 function addChatMessage(role, content) {
     const message = document.createElement("div");
     message.className = `ai-message ai-message-${role}`;
@@ -80,8 +147,9 @@ function addChatMessage(role, content) {
     avatar.className = "ai-message-avatar";
     avatar.setAttribute("aria-hidden", "true");
     avatar.textContent = role === "user" ? "Você" : "✦";
-    const text = document.createElement("p");
-    text.textContent = content;
+    const text = document.createElement("div");
+    text.className = "ai-message-content";
+    renderChatContent(text, content);
     message.append(avatar, text);
     aiMessages.append(message);
     aiMessages.scrollTop = aiMessages.scrollHeight;
@@ -96,13 +164,14 @@ function setChatLoading(isLoading) {
 
 async function typeAssistantMessage(content) {
     const message = addChatMessage("assistant", "");
-    const text = message.querySelector("p");
+    const text = message.querySelector(".ai-message-content");
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        text.textContent = content;
+        renderChatContent(text, content);
         return;
     }
     for (let index = 0; index < content.length; index += 4) {
-        text.textContent = content.slice(0, index + 4);
+        text.replaceChildren();
+        renderChatContent(text, content.slice(0, index + 4));
         aiMessages.scrollTop = aiMessages.scrollHeight;
         await new Promise((resolve) => setTimeout(resolve, 14));
     }
