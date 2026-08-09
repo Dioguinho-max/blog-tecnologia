@@ -137,6 +137,28 @@ function setTheme(isDark) {
 setTheme(localStorage.getItem("tech-ia-theme") === "dark");
 themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));
 
+const aiLauncher = document.querySelector("#ai-launcher");
+const aiPanel = document.querySelector("#ai-panel");
+const aiClose = document.querySelector("#ai-close");
+const aiBackdrop = document.querySelector("#ai-backdrop");
+const aiForm = document.querySelector("#ai-form");
+
+function setAiPanelOpen(isOpen) {
+    aiPanel.classList.toggle("open", isOpen);
+    aiPanel.setAttribute("aria-hidden", String(!isOpen));
+    aiLauncher.setAttribute("aria-expanded", String(isOpen));
+    aiBackdrop.hidden = !isOpen;
+    requestAnimationFrame(() => aiBackdrop.classList.toggle("visible", isOpen));
+}
+
+aiLauncher.addEventListener("click", () => setAiPanelOpen(true));
+aiClose.addEventListener("click", () => setAiPanelOpen(false));
+aiBackdrop.addEventListener("click", () => setAiPanelOpen(false));
+aiForm.addEventListener("submit", (event) => event.preventDefault());
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && aiPanel.classList.contains("open")) setAiPanelOpen(false);
+});
+
 document.querySelector("#current-year").textContent = new Date().getFullYear();
 
 loadPostsFromApi().finally(() => {
