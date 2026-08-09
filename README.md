@@ -3,7 +3,7 @@
 Conteúdo direto, prático e acessível sobre tecnologia, programação, Linux, APIs e Inteligência Artificial.
 
 🌐 **Acesse o blog:**
-https://blog-tecnologia-two.vercel.app/
+https://techiablog.vercel.app/
 
 ---
 
