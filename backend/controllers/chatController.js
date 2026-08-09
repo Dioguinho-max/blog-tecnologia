@@ -3,10 +3,10 @@ const MAX_HISTORY_MESSAGES = 4;
 const MAX_CONTEXT_LENGTH = 3500;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT = Math.min(Math.max(Number(process.env.CHAT_RATE_LIMIT) || 8, 1), 50);
-const MAX_TOKENS = Math.min(Math.max(Number(process.env.CHAT_MAX_TOKENS) || 280, 64), 500);
+const MAX_TOKENS = Math.min(Math.max(Number(process.env.CHAT_MAX_TOKENS) || 340, 64), 500);
 const requestLog = new Map();
 
-const systemPrompt = `Você é a assistente do Tech & IA Blog. Responda sempre em português do Brasil, de forma didática, objetiva e amigável. Seu foco é tecnologia, programação, Linux, APIs e Inteligência Artificial. Use blocos de código Markdown quando isso ajudar. Não invente fatos e indique quando uma informação precisa ser verificada.`;
+const systemPrompt = `Você é a assistente do Tech & IA Blog. Responda sempre em português do Brasil, de forma didática, objetiva e amigável. Seu foco é tecnologia, programação, Linux, APIs e Inteligência Artificial. Use blocos de código Markdown quando isso ajudar. Não invente fatos e indique quando uma informação precisa ser verificada. Seja concisa: prefira no máximo 220 palavras ou 8 tópicos. Sempre conclua a última frase e nunca deixe uma resposta incompleta.`;
 
 function isAllowed(req) {
     const now = Date.now();
@@ -34,6 +34,15 @@ function cleanArticleContext(context) {
     const content = typeof context.content === "string" ? context.content.trim().slice(0, MAX_CONTEXT_LENGTH) : "";
     if (!title || !content) return "";
     return `\n\nA pessoa está lendo o artigo "${title}" no Tech & IA Blog. Use o contexto abaixo somente para responder perguntas sobre ele. Se a pergunta não for relacionada, responda normalmente.\nResumo: ${summary}\nConteúdo: ${content}`;
+}
+
+function finishReply(reply, finishReason) {
+    if (finishReason !== "length") return reply;
+    const sentenceEnd = Math.max(reply.lastIndexOf("."), reply.lastIndexOf("!"), reply.lastIndexOf("?"));
+    if (sentenceEnd > reply.length * 0.45) {
+        return `${reply.slice(0, sentenceEnd + 1)}\n\n_Resposta encurtada para respeitar o limite de uso._`;
+    }
+    return `${reply}\n\n_Resposta encurtada para respeitar o limite de uso._`;
 }
 
 async function chat(req, res, next) {
@@ -69,7 +78,7 @@ async function chat(req, res, next) {
         }
         const reply = data.choices?.[0]?.message?.content?.trim();
         if (!reply) return res.status(502).json({ message: "A IA retornou uma resposta inválida. Tente novamente." });
-        res.json({ reply });
+        res.json({ reply: finishReply(reply, data.choices?.[0]?.finish_reason) });
     } catch (error) {
         if (error.name === "TimeoutError") return res.status(504).json({ message: "A resposta da IA demorou demais. Tente novamente." });
         next(error);

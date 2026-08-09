@@ -27,4 +27,4 @@ services:
       - key: CHAT_RATE_LIMIT
         value: "8"
       - key: CHAT_MAX_TOKENS
-        value: "280"
+        value: "340"
