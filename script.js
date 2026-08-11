@@ -129,8 +129,11 @@ menuToggle.addEventListener("click", () => {
 
 const themeToggle = document.querySelector(".theme-toggle");
 const navAccountAvatar = document.querySelector("#nav-account-avatar");
+const accountAvatarButton = document.querySelector("#account-avatar-link");
+const accountPopover = document.querySelector("#account-popover");
+let readerSession;
 try {
-    const readerSession = JSON.parse(localStorage.getItem("tech-ia-reader-session"));
+    readerSession = JSON.parse(localStorage.getItem("tech-ia-reader-session"));
     const email = readerSession?.user?.email || "Usuário";
     navAccountAvatar.src = readerSession?.user?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=2563eb&color=fff`;
     navAccountAvatar.alt = `Conta de ${email}`;
@@ -138,6 +141,16 @@ try {
     navAccountAvatar.src = "https://ui-avatars.com/api/?name=Conta&background=2563eb&color=fff";
     navAccountAvatar.alt = "Abrir conta";
 }
+function renderAccountPopover() {
+    if (readerSession?.user) {
+        accountPopover.innerHTML = `<strong>${readerSession.user.email}</strong><span>Conta conectada</span><button id="popover-logout" type="button">Sair da conta</button>`;
+        document.querySelector("#popover-logout").addEventListener("click", () => { localStorage.removeItem("tech-ia-reader-session"); location.reload(); });
+    } else {
+        accountPopover.innerHTML = '<strong>Entre na comunidade</strong><span>Salve favoritos e acompanhe leituras.</span><a href="conta.html">Entrar ou criar conta</a>';
+    }
+}
+accountAvatarButton.addEventListener("click", () => { const open = accountPopover.hidden; accountPopover.hidden = !open; accountAvatarButton.setAttribute("aria-expanded", String(open)); if (open) renderAccountPopover(); });
+document.addEventListener("click", (event) => { if (!event.target.closest(".account-menu")) { accountPopover.hidden = true; accountAvatarButton.setAttribute("aria-expanded", "false"); } });
 function setTheme(isDark) {
     document.body.classList.toggle("dark-theme", isDark);
     themeToggle.textContent = isDark ? "☀" : "☾";
