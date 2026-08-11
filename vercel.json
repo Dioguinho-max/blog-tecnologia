@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://tech-ia-blog.onrender.com/api/seo/sitemap.xml"
+    }
+  ]
+}

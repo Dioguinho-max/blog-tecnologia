@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Artigo do Tech & IA Blog.">
+    <link id="canonical-url" rel="canonical" href="https://techiablog.vercel.app/posts/post.html">
+    <meta id="og-type" property="og:type" content="article">
+    <meta id="og-title" property="og:title" content="Artigo | Tech & IA Blog">
+    <meta id="og-description" property="og:description" content="Artigo do Tech & IA Blog.">
+    <meta id="og-url" property="og:url" content="https://techiablog.vercel.app/posts/post.html">
+    <meta id="og-image" property="og:image" content="">
+    <meta name="twitter:card" content="summary_large_image">
     <title>Artigo | Tech & IA Blog</title>
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -31,6 +38,20 @@
         const id = new URLSearchParams(window.location.search).get("id");
         const container = document.querySelector("#dynamic-post");
         const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+        function setSeo(post, imageUrl) {
+            const siteUrl = window.TECH_IA_SITE_URL || window.location.origin;
+            const canonical = `${siteUrl}/posts/post.html?id=${encodeURIComponent(post.id)}`;
+            const absoluteImage = imageUrl ? new URL(imageUrl, siteUrl).href : "";
+            document.querySelector('meta[name="description"]').setAttribute("content", post.resumo);
+            document.querySelector("#canonical-url").setAttribute("href", canonical);
+            document.querySelector("#og-title").setAttribute("content", `${post.titulo} | Tech & IA Blog`);
+            document.querySelector("#og-description").setAttribute("content", post.resumo);
+            document.querySelector("#og-url").setAttribute("content", canonical);
+            if (absoluteImage) document.querySelector("#og-image").setAttribute("content", absoluteImage);
+            let schema = document.querySelector("#article-schema");
+            if (!schema) { schema = document.createElement("script"); schema.id = "article-schema"; schema.type = "application/ld+json"; document.head.append(schema); }
+            schema.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "BlogPosting", headline: post.titulo, description: post.resumo, datePublished: post.createdAt, dateModified: post.updatedAt, image: absoluteImage || undefined, mainEntityOfPage: canonical, author: { "@type": "Organization", name: "Tech & IA Blog" }, publisher: { "@type": "Organization", name: "Tech & IA Blog" } });
+        }
         function formatTextBlock(block) {
             return block.trim().split(/\n\s*\n/).filter(Boolean).map((part) => {
                 const lines = part.split("\n");
@@ -74,6 +95,7 @@
                     window.TECH_IA_ARTICLE_CONTEXT = { title: post.titulo, summary: post.resumo, content: post.conteudo };
                     window.dispatchEvent(new Event("techiaarticlecontext"));
                     const imageUrl = post.imagem && !/^https?:\/\//.test(post.imagem) ? `../${post.imagem.replace(/^\//, "")}` : post.imagem;
+                    setSeo(post, imageUrl);
                     const publishedAt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt));
                     const readingTime = Math.max(1, Math.ceil(post.conteudo.trim().split(/\s+/).length / 220));
                     container.innerHTML = `<section class="article-hero">${imageUrl ? `<img class="article-hero-bg" src="${escapeHtml(imageUrl)}" alt="">` : ""}<div class="article-title-card"><a class="breadcrumb" href="../index.html#posts">← Todos os artigos</a><span class="tag">${escapeHtml(post.categoria)}</span><h1>${escapeHtml(post.titulo)}</h1><p class="article-summary">${escapeHtml(post.resumo)}</p><div class="article-meta-row"><span>${publishedAt}</span><span aria-hidden="true">•</span><span>${readingTime} min de leitura</span></div></div></section><div class="article-layout"><article class="article-prose">${formatContent(post.conteudo)}<div class="article-end"><a class="button button-primary" href="../index.html#posts">← Ver mais artigos</a></div></article></div>`;
