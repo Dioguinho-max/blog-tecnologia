@@ -22,6 +22,10 @@ services:
         sync: false
       - key: PUBLIC_SITE_URL
         value: https://techiablog.vercel.app
+      - key: SUPABASE_URL
+        value: https://wxkzowgprcifydijhyxp.supabase.co
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
       - key: HF_TOKEN
         sync: false
       - key: HF_MODEL

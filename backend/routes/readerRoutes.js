@@ -1,0 +1,10 @@
+const express = require("express");
+const { pool } = require("../config/database");
+const authenticateReader = require("../middlewares/readerAuth");
+const router = express.Router();
+router.use(authenticateReader);
+router.get("/me", async (req, res, next) => { try { const [favorites, progress] = await Promise.all([pool.query("SELECT post_id FROM user_favorites WHERE user_id=$1", [req.reader.id]), pool.query("SELECT post_id, progress FROM reading_progress WHERE user_id=$1", [req.reader.id])]); res.json({ favorites: favorites.rows, progress: progress.rows }); } catch (e) { next(e); } });
+router.post("/favorites/:postId", async (req, res, next) => { try { await pool.query("INSERT INTO user_favorites (user_id, post_id) VALUES ($1,$2) ON CONFLICT DO NOTHING", [req.reader.id, req.params.postId]); res.status(204).end(); } catch (e) { next(e); } });
+router.delete("/favorites/:postId", async (req, res, next) => { try { await pool.query("DELETE FROM user_favorites WHERE user_id=$1 AND post_id=$2", [req.reader.id, req.params.postId]); res.status(204).end(); } catch (e) { next(e); } });
+router.put("/progress/:postId", async (req, res, next) => { try { const progress = Math.min(100, Math.max(0, Number(req.body.progress) || 0)); await pool.query("INSERT INTO reading_progress (user_id, post_id, progress) VALUES ($1,$2,$3) ON CONFLICT (user_id,post_id) DO UPDATE SET progress=EXCLUDED.progress, updated_at=NOW()", [req.reader.id, req.params.postId, progress]); res.status(204).end(); } catch (e) { next(e); } });
+module.exports = router;

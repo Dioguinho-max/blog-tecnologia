@@ -8,6 +8,7 @@ const postRoutes = require("./routes/postRoutes");
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const seoRoutes = require("./routes/seoRoutes");
+const readerRoutes = require("./routes/readerRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/seo", seoRoutes);
+app.use("/api/reader", readerRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

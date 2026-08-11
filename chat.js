@@ -233,6 +233,12 @@ async function typeAssistantMessage(content) {
 async function sendChatMessage() {
     const message = aiInput.value.trim();
     if (!message || aiInput.disabled) return;
+    let session;
+    try { session = JSON.parse(localStorage.getItem("tech-ia-reader-session")); } catch { session = null; }
+    if (!session?.access_token) {
+        addChatMessage("assistant", "Para usar a IA, entre na sua conta primeiro. Acesse a página Conta no menu. 🔐");
+        return;
+    }
     if (!consumeDailyUsage()) {
         addChatMessage("assistant", "Você atingiu o limite diário de 10 mensagens deste navegador. Volte amanhã para continuar. ✨");
         return;
@@ -247,7 +253,7 @@ async function sendChatMessage() {
     const typing = addChatMessage("assistant", "A IA está digitando...");
     typing.classList.add("ai-typing");
     try {
-        const response = await fetch(`${chatApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history: historyForRequest, articleContext: getArticleContext(), sessionId: getSessionId() }) });
+        const response = await fetch(`${chatApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` }, body: JSON.stringify({ message, history: historyForRequest, articleContext: getArticleContext(), sessionId: getSessionId() }) });
         const data = await response.json().catch(() => ({}));
         typing.remove();
         if (!response.ok) throw new Error(data.message || "Não foi possível obter uma resposta.");
