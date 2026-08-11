@@ -187,6 +187,24 @@ function addChatMessage(role, content) {
     return message;
 }
 
+function addChatSources(sources) {
+    if (!Array.isArray(sources) || !sources.length) return;
+    const sourceBox = document.createElement("div");
+    sourceBox.className = "ai-sources";
+    const title = document.createElement("span");
+    title.textContent = "Artigos consultados";
+    sourceBox.append(title);
+    const postPath = window.location.pathname.includes("/posts/") ? "post.html" : "posts/post.html";
+    sources.forEach((source) => {
+        const link = document.createElement("a");
+        link.href = `${postPath}?id=${encodeURIComponent(source.id)}`;
+        link.textContent = source.titulo;
+        sourceBox.append(link);
+    });
+    aiMessages.insertBefore(sourceBox, aiSuggestions);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
 function setChatLoading(isLoading) {
     aiInput.disabled = isLoading;
     aiSend.disabled = isLoading;
@@ -234,6 +252,7 @@ async function sendChatMessage() {
         typing.remove();
         if (!response.ok) throw new Error(data.message || "Não foi possível obter uma resposta.");
         await typeAssistantMessage(data.reply);
+        addChatSources(data.sources);
         rememberMessage("assistant", data.reply);
         updateUsageLabel(data.remaining);
     } catch (error) {

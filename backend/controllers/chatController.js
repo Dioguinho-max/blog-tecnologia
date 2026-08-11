@@ -38,6 +38,24 @@ function cleanArticleContext(context) {
     return `\n\nA pessoa está lendo o artigo "${title}" no Tech & IA Blog. Use o contexto abaixo somente para responder perguntas sobre ele. Se a pergunta não for relacionada, responda normalmente.\nResumo: ${summary}\nConteúdo: ${content}`;
 }
 
+async function findRelevantPosts(question) {
+    const result = await pool.query(`
+        SELECT id, titulo, resumo, categoria
+        FROM posts
+        WHERE publicado = true
+          AND to_tsvector('portuguese', titulo || ' ' || resumo || ' ' || conteudo) @@ plainto_tsquery('portuguese', $1)
+        ORDER BY ts_rank(to_tsvector('portuguese', titulo || ' ' || resumo || ' ' || conteudo), plainto_tsquery('portuguese', $1)) DESC
+        LIMIT 3
+    `, [question]);
+    return result.rows;
+}
+
+function buildBlogContext(posts) {
+    if (!posts.length) return "";
+    const sources = posts.map((post, index) => `[${index + 1}] ${post.titulo} (${post.categoria}): ${post.resumo}`).join("\n");
+    return `\n\nPosts relevantes do Tech & IA Blog:\n${sources}\nUse esses posts somente quando forem úteis. Não invente conteúdo que não esteja neles.`;
+}
+
 function getSessionId(value) {
     return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value) ? value : null;
 }
@@ -79,6 +97,7 @@ async function chat(req, res, next) {
         const quota = await consumeDailyQuota(sessionId);
         if (!quota.allowed) return res.status(429).json({ message: `Você atingiu o limite diário de ${DAILY_LIMIT} mensagens. Volte amanhã para continuar.` });
 
+        const relevantPosts = await findRelevantPosts(message);
         const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -87,7 +106,7 @@ async function chat(req, res, next) {
             },
             body: JSON.stringify({
                 model: process.env.HF_MODEL || "Qwen/Qwen2.5-7B-Instruct:fastest",
-                messages: [{ role: "system", content: systemPrompt + cleanArticleContext(req.body.articleContext) }, ...cleanHistory(req.body.history), { role: "user", content: message }],
+                messages: [{ role: "system", content: systemPrompt + cleanArticleContext(req.body.articleContext) + buildBlogContext(relevantPosts) }, ...cleanHistory(req.body.history), { role: "user", content: message }],
                 max_tokens: MAX_TOKENS,
                 temperature: 0.4
             }),
@@ -100,7 +119,7 @@ async function chat(req, res, next) {
         }
         const reply = data.choices?.[0]?.message?.content?.trim();
         if (!reply) return res.status(502).json({ message: "A IA retornou uma resposta inválida. Tente novamente." });
-        res.json({ reply: finishReply(reply, data.choices?.[0]?.finish_reason), remaining: quota.remaining });
+        res.json({ reply: finishReply(reply, data.choices?.[0]?.finish_reason), remaining: quota.remaining, sources: relevantPosts.map(({ id, titulo }) => ({ id, titulo })) });
     } catch (error) {
         if (error.name === "TimeoutError") return res.status(504).json({ message: "A resposta da IA demorou demais. Tente novamente." });
         next(error);
