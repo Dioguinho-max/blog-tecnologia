@@ -9,6 +9,8 @@ const message = (id, text, error = false) => { const el = document.querySelector
 const authHeaders = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem(tokenKey)}` });
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
 const themeToggle = document.querySelector(".theme-toggle");
+const contentField = postForm.elements.conteudo;
+const draftKey = "tech-ia-post-draft";
 
 function setTheme(isDark) {
     document.body.classList.toggle("dark-theme", isDark);
@@ -20,7 +22,77 @@ function setTheme(isDark) {
 setTheme(localStorage.getItem("tech-ia-theme") === "dark");
 themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));
 
-function showAdmin() { loginPanel.hidden = true; adminPanel.hidden = false; loadPosts(); }
+function showAdmin() { loginPanel.hidden = true; adminPanel.hidden = false; restoreDraft(); loadPosts(); }
+
+function escapePreview(value) {
+    return String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+}
+
+function renderPreview(content) {
+    return content.split(/```/).map((block, index) => {
+        if (index % 2) return `<pre><code>${escapePreview(block.replace(/^\w*\n?/, "").trim())}</code></pre>`;
+        return block.trim().split(/\n\s*\n/).filter(Boolean).map((part) => {
+            const heading = part.match(/^#{1,3}\s+(.+)/);
+            if (heading) return `<h3>${escapePreview(heading[1])}</h3>`;
+            const lines = part.split("\n");
+            if (lines.every((line) => /^[-*]\s+/.test(line))) return `<ul>${lines.map((line) => `<li>${escapePreview(line.replace(/^[-*]\s+/, ""))}</li>`).join("")}</ul>`;
+            return `<p>${escapePreview(part).replace(/\n/g, "<br>")}</p>`;
+        }).join("");
+    }).join("") || "<p class=\"preview-empty\">Escreva o conteúdo para ver a prévia.</p>";
+}
+
+function setupEditor() {
+    const toolbar = document.createElement("div");
+    toolbar.className = "editor-toolbar";
+    toolbar.innerHTML = '<button type="button" data-insert="heading">Tópico</button><button type="button" data-insert="list">Lista</button><button type="button" data-insert="code">Código</button><span id="draft-status">Rascunho não salvo</span>';
+    contentField.before(toolbar);
+    const preview = document.createElement("section");
+    preview.className = "post-preview";
+    preview.innerHTML = '<p class="eyebrow">Pré-visualização</p><div id="preview-content"></div>';
+    postForm.after(preview);
+    const previewContent = preview.querySelector("#preview-content");
+
+    function updateEditor() {
+        previewContent.innerHTML = renderPreview(contentField.value);
+        if (!postForm.elements.id.value) {
+            const draft = Object.fromEntries(new FormData(postForm));
+            draft.publicado = postForm.publicado.checked;
+            draft.destaque = postForm.destaque.checked;
+            if (draft.titulo || draft.conteudo || draft.resumo) {
+                localStorage.setItem(draftKey, JSON.stringify(draft));
+                toolbar.querySelector("#draft-status").textContent = "Rascunho salvo automaticamente";
+            } else {
+                localStorage.removeItem(draftKey);
+                toolbar.querySelector("#draft-status").textContent = "Rascunho não salvo";
+            }
+        }
+    }
+    toolbar.addEventListener("click", (event) => {
+        const action = event.target.dataset.insert;
+        if (!action) return;
+        const templates = { heading: "## Novo tópico\n\n", list: "- Item da lista\n", code: "```js\n// Seu código aqui\n```\n" };
+        const start = contentField.selectionStart;
+        const text = templates[action];
+        contentField.setRangeText(text, start, contentField.selectionEnd, "end");
+        contentField.focus();
+        updateEditor();
+    });
+    contentField.addEventListener("input", updateEditor);
+    postForm.addEventListener("input", (event) => { if (event.target !== contentField) updateEditor(); });
+    window.techIaEditor = { update: updateEditor };
+    updateEditor();
+}
+
+function restoreDraft() {
+    if (postForm.elements.id.value || contentField.value) return;
+    try {
+        const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
+        if (!draft || !draft.titulo) return;
+        Object.entries(draft).forEach(([key, value]) => { if (postForm.elements[key]) postForm.elements[key].type === "checkbox" ? postForm.elements[key].checked = value : postForm.elements[key].value = value; });
+        window.techIaEditor?.update();
+        message("#post-message", "Rascunho local restaurado.");
+    } catch { localStorage.removeItem(draftKey); }
+}
 async function loadPosts() {
     const response = await fetch(`${api}/posts/admin/all`, { headers: authHeaders() });
     if (!response.ok) { localStorage.removeItem(tokenKey); location.reload(); return; }
@@ -43,15 +115,16 @@ postForm.addEventListener("submit", async (event) => {
     const response = await fetch(`${api}/posts${id ? `/${id}` : ""}`, { method: id ? "PUT" : "POST", headers: authHeaders(), body: JSON.stringify(data) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) return message("#post-message", result.message || "Não foi possível salvar.", true);
-    message("#post-message", "Post salvo com sucesso."); resetForm(); loadPosts();
+    localStorage.removeItem(draftKey); message("#post-message", "Post salvo com sucesso."); resetForm(); loadPosts();
 });
 list.addEventListener("click", async (event) => {
     const edit = event.target.dataset.edit;
-    if (edit) { const post = JSON.parse(decodeURIComponent(edit)); Object.entries(post).forEach(([key, value]) => { if (postForm.elements[key]) postForm.elements[key].type === "checkbox" ? postForm.elements[key].checked = value : postForm.elements[key].value = value || ""; }); document.querySelector("#form-title").textContent = "Editar post"; document.querySelector("#cancel-edit").hidden = false; window.scrollTo({ top: 0, behavior: "smooth" }); }
+    if (edit) { const post = JSON.parse(decodeURIComponent(edit)); Object.entries(post).forEach(([key, value]) => { if (postForm.elements[key]) postForm.elements[key].type === "checkbox" ? postForm.elements[key].checked = value : postForm.elements[key].value = value || ""; }); document.querySelector("#form-title").textContent = "Editar post"; document.querySelector("#cancel-edit").hidden = false; window.techIaEditor?.update(); window.scrollTo({ top: 0, behavior: "smooth" }); }
     const id = event.target.dataset.delete;
     if (id && confirm("Excluir este post permanentemente?")) { const response = await fetch(`${api}/posts/${id}`, { method: "DELETE", headers: authHeaders() }); if (response.ok) loadPosts(); }
 });
-function resetForm() { postForm.reset(); postForm.elements.id.value = ""; document.querySelector("#form-title").textContent = "Novo post"; document.querySelector("#cancel-edit").hidden = true; }
+function resetForm() { postForm.reset(); postForm.elements.id.value = ""; document.querySelector("#form-title").textContent = "Novo post"; document.querySelector("#cancel-edit").hidden = true; window.techIaEditor?.update(); }
 document.querySelector("#cancel-edit").addEventListener("click", resetForm);
 document.querySelector("#logout").addEventListener("click", () => { localStorage.removeItem(tokenKey); location.reload(); });
+setupEditor();
 if (localStorage.getItem(tokenKey)) showAdmin();

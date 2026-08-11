@@ -102,6 +102,8 @@ h2 { font-size: clamp(1.7rem, 3vw, 2.25rem); letter-spacing: -.035em; }
 .admin-card textarea { resize: vertical; }
 .admin-card small { color: var(--muted); font-weight: 400; line-height: 1.4; }
 .admin-card small code { padding: 1px 4px; color: var(--primary); background: var(--bg); border-radius: 3px; }
+.editor-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: -8px; }.editor-toolbar button { padding: 5px 9px; color: var(--primary); border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: .75rem; font-weight: 800; }.editor-toolbar button:hover { color: #fff; border-color: var(--primary); background: var(--primary); }.editor-toolbar span { margin-left: auto; color: var(--muted); font-size: .72rem; }
+.post-preview { margin-top: 24px; padding: 22px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg); }.post-preview h3 { margin: 18px 0 8px; color: var(--text); }.post-preview p { margin: 10px 0; color: var(--muted); }.post-preview ul { margin: 10px 0 10px 20px; color: var(--muted); }.post-preview pre { overflow-x: auto; margin: 14px 0; padding: 14px; color: #e2e8f0; border-radius: 8px; background: #101827; font-size: .82rem; }.preview-empty { font-style: italic; }
 .admin-card .check { display: flex; align-items: center; gap: 8px; }
 .form-actions, .admin-title, .admin-post { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .form-message { min-height: 24px; color: #15803d; }.form-message.error { color: #dc2626; }
