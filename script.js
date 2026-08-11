@@ -128,6 +128,16 @@ menuToggle.addEventListener("click", () => {
 });
 
 const themeToggle = document.querySelector(".theme-toggle");
+const navAccountAvatar = document.querySelector("#nav-account-avatar");
+try {
+    const readerSession = JSON.parse(localStorage.getItem("tech-ia-reader-session"));
+    const email = readerSession?.user?.email || "Usuário";
+    navAccountAvatar.src = readerSession?.user?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=2563eb&color=fff`;
+    navAccountAvatar.alt = `Conta de ${email}`;
+} catch {
+    navAccountAvatar.src = "https://ui-avatars.com/api/?name=Conta&background=2563eb&color=fff";
+    navAccountAvatar.alt = "Abrir conta";
+}
 function setTheme(isDark) {
     document.body.classList.toggle("dark-theme", isDark);
     themeToggle.textContent = isDark ? "☀" : "☾";
