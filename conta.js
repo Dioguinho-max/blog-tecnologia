@@ -22,7 +22,9 @@ form.addEventListener("submit", async (event) => {
     const data = await response.json();
     if (!response.ok) return showMessage(data.msg || data.message || "Não foi possível concluir a operação.", true);
     if (signupMode && !data.access_token) return showMessage("Cadastro criado. Verifique seu e-mail para confirmar a conta.");
-    localStorage.setItem(storageKey, JSON.stringify(data)); showSession(data); showMessage("Login realizado com sucesso.");
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    showMessage("Login realizado com sucesso. Redirecionando...");
+    window.location.replace("index.html");
 });
 document.querySelector("#account-logout").addEventListener("click", () => { localStorage.removeItem(storageKey); location.reload(); });
 document.querySelector("#avatar-input").addEventListener("change", async (event) => { const file = event.target.files[0]; const session = JSON.parse(localStorage.getItem(storageKey)); if (!file || !session) return; const path = `${session.user.id}/avatar-${Date.now()}`; const upload = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${path}`, { method: "POST", headers: { apikey: supabaseKey, Authorization: `Bearer ${session.access_token}`, "Content-Type": file.type }, body: file }); if (!upload.ok) return showMessage("Não foi possível enviar a foto.", true); const avatar_url = `${supabaseUrl}/storage/v1/object/public/avatars/${path}`; const update = await fetch(`${supabaseUrl}/auth/v1/user`, { method: "PUT", headers: { apikey: supabaseKey, Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" }, body: JSON.stringify({ data: { avatar_url } }) }); const user = await update.json(); session.user = user; localStorage.setItem(storageKey, JSON.stringify(session)); showSession(session); });
