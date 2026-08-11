@@ -22,7 +22,8 @@ function setTheme(isDark) {
 setTheme(localStorage.getItem("tech-ia-theme") === "dark");
 themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));
 
-function showAdmin() { loginPanel.hidden = true; adminPanel.hidden = false; restoreDraft(); loadPosts(); }
+function showAdmin() { loginPanel.hidden = true; adminPanel.hidden = false; document.querySelector("#admin-comments").hidden = false; restoreDraft(); loadPosts(); loadComments(); }
+async function loadComments() { const target = document.querySelector("#admin-comment-list"); const response = await fetch(`${api}/comments/admin/all`, { headers: authHeaders() }); if (!response.ok) return; const { comments } = await response.json(); target.innerHTML = comments.length ? comments.map((comment) => `<article class="admin-post"><div><strong>${escapeHtml(comment.authorName)} ${comment.published ? "· Publicado" : "· Pendente"}</strong><p>${escapeHtml(comment.postTitle)} — ${escapeHtml(comment.content)}</p></div><div>${comment.published ? "" : `<button class="filter" data-approve-comment="${comment.id}">Aprovar</button>`}<button class="filter danger" data-delete-comment="${comment.id}">Excluir</button></div></article>`).join("") : "<p>Nenhum comentário para moderar.</p>"; }
 
 function escapePreview(value) {
     return String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
@@ -125,6 +126,7 @@ list.addEventListener("click", async (event) => {
 });
 function resetForm() { postForm.reset(); postForm.elements.id.value = ""; document.querySelector("#form-title").textContent = "Novo post"; document.querySelector("#cancel-edit").hidden = true; window.techIaEditor?.update(); }
 document.querySelector("#cancel-edit").addEventListener("click", resetForm);
+document.querySelector("#admin-comment-list").addEventListener("click", async (event) => { const id = event.target.dataset.approveComment; const remove = event.target.dataset.deleteComment; if (id) await fetch(`${api}/comments/admin/${id}/publish`, { method: "PUT", headers: authHeaders() }); if (remove && confirm("Excluir este comentário?")) await fetch(`${api}/comments/admin/${remove}`, { method: "DELETE", headers: authHeaders() }); if (id || remove) loadComments(); });
 document.querySelector("#logout").addEventListener("click", () => { localStorage.removeItem(tokenKey); location.reload(); });
 setupEditor();
 if (localStorage.getItem(tokenKey)) showAdmin();

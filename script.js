@@ -153,6 +153,19 @@ function renderAccountPopover() {
 }
 accountAvatarButton.addEventListener("click", () => { const open = accountPopover.hidden; accountPopover.hidden = !open; accountAvatarButton.setAttribute("aria-expanded", String(open)); if (open) renderAccountPopover(); });
 document.addEventListener("click", (event) => { if (!event.target.closest(".account-menu")) { accountPopover.hidden = true; accountAvatarButton.setAttribute("aria-expanded", "false"); } });
+async function loadReaderDashboard() {
+    const section = document.querySelector("#reader-dashboard");
+    if (!section || !readerSession?.access_token) return;
+    try {
+        const response = await fetch(`${apiBase}/reader/me`, { headers: { Authorization: `Bearer ${readerSession.access_token}` } });
+        if (!response.ok) return;
+        const data = await response.json(); const progress = data.progress || []; const favorites = data.favorites || [];
+        const continuing = progress.find((item) => item.progress > 0 && item.progress < 100) || progress[0];
+        const card = (item, extra = "") => `<article><span class="tag">${item.categoria}</span><h3>${item.titulo}</h3><p>${item.resumo}</p>${extra}<a href="posts/post.html?id=${encodeURIComponent(item.id)}">Ler artigo →</a></article>`;
+        document.querySelector("#reader-dashboard-content").innerHTML = `${continuing ? `<div><h3>Continue lendo</h3>${card(continuing, `<div class="reader-progress"><span style="width:${continuing.progress}%"></span></div><small>${continuing.progress}% concluído</small>`)}</div>` : ""}${favorites.length ? `<div><h3>Favoritos</h3>${card(favorites[0])}${favorites.length > 1 ? `<small>+ ${favorites.length - 1} favorito(s) salvo(s)</small>` : ""}</div>` : ""}`;
+        section.hidden = !continuing && !favorites.length;
+    } catch { /* O blog continua funcionando sem dados do leitor. */ }
+}
 function setTheme(isDark) {
     document.body.classList.toggle("dark-theme", isDark);
     themeToggle.textContent = isDark ? "☀" : "☾";
@@ -167,4 +180,5 @@ document.querySelector("#current-year").textContent = new Date().getFullYear();
 loadPostsFromApi().finally(() => {
     renderFeatured();
     renderPosts();
+    loadReaderDashboard();
 });

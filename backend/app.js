@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const seoRoutes = require("./routes/seoRoutes");
 const readerRoutes = require("./routes/readerRoutes");
+const commentRoutes = require("./routes/commentRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/seo", seoRoutes);
 app.use("/api/reader", readerRoutes);
+app.use("/api/comments", commentRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
