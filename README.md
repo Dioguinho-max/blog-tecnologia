@@ -5,6 +5,9 @@ Conteúdo direto, prático e acessível sobre tecnologia, programação, Linux, 
 🌐 **Acesse o blog:**
 https://techiablog.vercel.app/
 
+🔌 **API:**
+https://tech-ia-blog.onrender.com/api/health
+
 ---
 
 ## ✨ Sobre o projeto
@@ -70,6 +73,18 @@ Também existem atalhos para:
 
 As respostas possuem animação de digitação e formatação adequada para textos e códigos.
 
+### 👤 Contas e comunidade
+
+* Cadastro e login com e-mail e senha
+* Login social com Google (OAuth)
+* Avatar de perfil enviado ao Supabase Storage
+* Menu de conta no topo para alterar foto, e-mail e senha
+* Favoritos vinculados à conta
+* Progresso de leitura salvo por artigo
+* Acesso ao assistente de IA apenas para usuários autenticados
+
+As senhas e as sessões são gerenciadas pelo Supabase Auth. O blog não recebe nem armazena senhas de contas Google.
+
 ---
 
 ## 🧠 Contexto dos artigos
@@ -107,6 +122,16 @@ O usuário pode:
 * Limpar o histórico através do botão disponível no assistente
 
 O histórico local não depende de uma conta ou de armazenamento permanente no banco de dados.
+
+---
+
+## 🔎 SEO e descoberta
+
+* Metatags para páginas principais e artigos
+* Dados estruturados (Schema.org)
+* `robots.txt`
+* Sitemap dinâmico com os artigos publicados
+* Propriedade verificada no Google Search Console
 
 ---
 
@@ -148,6 +173,8 @@ Esses limites são aplicados no **backend**, evitando depender apenas de valida�
 
 * Supabase
 * PostgreSQL
+* Supabase Auth
+* Supabase Storage
 
 ### Inteligência Artificial
 
@@ -159,7 +186,68 @@ Esses limites são aplicados no **backend**, evitando depender apenas de valida�
 
 * Vercel — Frontend
 * Render — Backend
-* Supabase — Banco de dados
+* Supabase — Banco de dados, autenticação e arquivos
+* Google Cloud — credenciais OAuth para login com Google
+
+---
+
+## 🏗️ Arquitetura
+
+```text
+Visitante
+   ↓
+Vercel (HTML, CSS e JavaScript)
+   ├── Supabase Auth + Storage
+   │   └── contas, login Google e avatares
+   ↓
+Render (Node.js + Express)
+   ├── API REST de posts e painel admin
+   ├── regras de limite e segurança do chat
+   └── integração com Hugging Face
+   ↓
+Supabase PostgreSQL
+   └── posts, favoritos, progresso de leitura e uso da IA
+```
+
+---
+
+## ⚙️ Executar localmente
+
+### 1. Instale as dependências
+
+```bash
+npm install
+```
+
+### 2. Crie o arquivo `.env`
+
+Use um arquivo `.env` apenas no backend e nunca envie credenciais para o GitHub:
+
+```env
+DATABASE_URL=sua_url_de_conexao_postgresql
+JWT_SECRET=uma_chave_longa_e_aleatoria
+ADMIN_EMAIL=seu_email
+ADMIN_PASSWORD_HASH=hash_bcrypt_da_senha
+CLIENT_URL=http://localhost:5500
+PUBLIC_SITE_URL=http://localhost:5500
+SUPABASE_URL=https://seu-projeto.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_sua_chave_publica
+HF_TOKEN=seu_token_hugging_face
+HF_MODEL=Qwen/Qwen2.5-7B-Instruct:fastest
+CHAT_RATE_LIMIT=8
+CHAT_MAX_TOKENS=340
+CHAT_DAILY_LIMIT=10
+```
+
+### 3. Inicie a API
+
+```bash
+npm run dev
+```
+
+Para abrir o frontend, use uma extensão como **Live Server** no VS Code ou um servidor estático local.
+
+> O `SUPABASE_PUBLISHABLE_KEY` pode ficar no frontend, pois é uma chave pública. Nunca exponha `HF_TOKEN`, `JWT_SECRET`, senha administrativa, `DATABASE_URL` ou Client Secret do Google.
 
 ---
 
