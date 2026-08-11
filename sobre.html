@@ -11,33 +11,33 @@
     <header class="site-header">
         <div class="header-content">
             <a class="brand" href="index.html">Tech <span>&amp; IA</span> Blog</a>
-            <nav class="main-nav about-nav" aria-label="Navegação principal">
-                <a href="index.html">Início</a>
-                <a href="index.html#posts">Artigos</a>
-                <a class="ativo" href="sobre.html">Sobre</a>
-            </nav>
+            <div class="header-actions"><nav class="main-nav about-nav" aria-label="Navegação principal"><a href="index.html">Início</a><a href="index.html#posts">Artigos</a><a class="ativo" href="sobre.html">Sobre</a></nav><button class="theme-toggle" type="button" aria-label="Ativar modo escuro">☾</button></div>
         </div>
     </header>
     <main>
         <section class="banner">
             <p class="eyebrow">Sobre o projeto</p>
-            <h1>Aprender tecnologia, um passo de cada vez.</h1>
+            <h1>Tecnologia explicada para quem quer construir.</h1>
         </section>
         <article class="post">
             <h3>O Tech &amp; IA Blog</h3>
-            <p>Este é um espaço para tornar tecnologia e inteligência artificial mais acessíveis. Os artigos apresentam conceitos, ferramentas e práticas de forma direta, para quem está começando e para quem quer continuar evoluindo.</p>
-            <h3>O que você vai encontrar</h3>
+            <p>O Tech &amp; IA Blog é um espaço independente de aprendizado sobre programação, inteligência artificial, Linux, APIs e desenvolvimento web. A proposta é transformar assuntos técnicos em explicações diretas, práticas e acessíveis.</p>
+            <h3>O que você encontra aqui</h3>
             <ul>
                 <li>Fundamentos de Inteligência Artificial</li>
                 <li>Linux e ferramentas de desenvolvimento</li>
-                <li>Web, APIs e programação</li>
+                <li>HTML, CSS, JavaScript, Node.js e APIs</li>
+                <li>Guias para estudar e construir projetos reais</li>
             </ul>
-            <h3>Como o blog evolui</h3>
-            <p>O próprio site é um projeto de aprendizado: começou como páginas HTML estáticas e agora usa JavaScript para organizar o conteúdo e oferecer recursos como busca, filtros e tema escuro.</p>
+            <h3>Aprender construindo</h3>
+            <p>O próprio blog também é parte da jornada. Ele começou como um site estático em HTML, CSS e JavaScript e evoluiu para uma aplicação com API, banco de dados, autenticação, painel administrativo e assistente de IA.</p>
+            <h3>Comunidade e responsabilidade</h3>
+            <p>O conteúdo tem finalidade educacional. Ferramentas e tecnologias mudam rapidamente, então sempre vale conferir a documentação oficial antes de aplicar uma solução em projetos importantes.</p>
             <br>
             <a class="button button-primary" href="index.html">← Ver artigos</a>
         </article>
     </main>
-    <footer class="site-footer"><p>© 2026 Tech &amp; IA Blog.</p></footer>
+    <footer class="site-footer"><p>© 2026 Tech &amp; IA Blog.</p><nav class="footer-links" aria-label="Links institucionais"><a href="sobre.html">Sobre</a><a href="versao.html">Versão</a><a href="politica-de-privacidade.html">Privacidade</a><a href="termos-de-uso.html">Termos de uso</a></nav></footer>
+    <script>const themeToggle = document.querySelector(".theme-toggle"); function setTheme(isDark) { document.body.classList.toggle("dark-theme", isDark); themeToggle.textContent = isDark ? "☀" : "☾"; themeToggle.setAttribute("aria-label", isDark ? "Ativar modo claro" : "Ativar modo escuro"); localStorage.setItem("tech-ia-theme", isDark ? "dark" : "light"); } setTheme(localStorage.getItem("tech-ia-theme") === "dark"); themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("dark-theme")));</script>
 </body>
 </html>
