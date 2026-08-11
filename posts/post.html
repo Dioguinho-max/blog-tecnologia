@@ -76,6 +76,52 @@
                 return `<div class="code-block"><div class="code-toolbar"><span>Código</span><button class="copy-code" type="button" data-code="${encodeURIComponent(code)}">Copiar</button></div><pre><code>${escapeHtml(code)}</code></pre></div>`;
             }).join("");
         }
+        function setupReadingExperience(post) {
+            const progress = document.querySelector("#reading-progress-value");
+            const updateProgress = () => {
+                const article = document.querySelector(".article-prose");
+                const start = article.getBoundingClientRect().top + window.scrollY - 110;
+                const distance = Math.max(article.offsetHeight - window.innerHeight * .45, 1);
+                const percentage = Math.min(100, Math.max(0, ((window.scrollY - start) / distance) * 100));
+                progress.style.width = `${percentage}%`;
+            };
+            window.addEventListener("scroll", updateProgress, { passive: true });
+            updateProgress();
+
+            const headings = [...document.querySelectorAll(".article-prose h2")];
+            const toc = document.querySelector("#article-toc");
+            headings.forEach((heading, index) => {
+                heading.id = `topico-${index + 1}`;
+                const link = document.createElement("a");
+                link.href = `#${heading.id}`;
+                link.textContent = heading.textContent;
+                toc.append(link);
+            });
+            if (!headings.length) document.querySelector(".article-toc").hidden = true;
+
+            const shareUrl = `${window.TECH_IA_SITE_URL || window.location.origin}/posts/post.html?id=${encodeURIComponent(post.id)}`;
+            document.querySelector("#copy-article-link").addEventListener("click", async (event) => {
+                await navigator.clipboard.writeText(shareUrl);
+                event.currentTarget.textContent = "Link copiado!";
+                setTimeout(() => { event.currentTarget.textContent = "Copiar link"; }, 1800);
+            });
+            document.querySelector("#share-article").addEventListener("click", async () => {
+                if (navigator.share) await navigator.share({ title: post.titulo, text: post.resumo, url: shareUrl });
+                else document.querySelector("#copy-article-link").click();
+            });
+        }
+        async function loadRelatedPosts(post) {
+            const section = document.querySelector("#related-posts");
+            const grid = document.querySelector("#related-grid");
+            try {
+                const response = await fetch(`${window.TECH_IA_API_URL || "/api"}/posts?categoria=${encodeURIComponent(post.categoria)}&limit=4`);
+                const data = await response.json();
+                const related = (data.posts || []).filter((item) => item.id !== post.id).slice(0, 3);
+                if (!related.length) return;
+                grid.innerHTML = related.map((item) => `<article><span class="tag">${escapeHtml(item.categoria)}</span><h3>${escapeHtml(item.titulo)}</h3><p>${escapeHtml(item.resumo)}</p><a href="post.html?id=${encodeURIComponent(item.id)}">Ler artigo →</a></article>`).join("");
+                section.hidden = false;
+            } catch { /* A leitura do artigo continua disponível sem relacionados. */ }
+        }
         container.addEventListener("click", async (event) => {
             const button = event.target.closest(".copy-code");
             if (!button) return;
@@ -98,7 +144,9 @@
                     setSeo(post, imageUrl);
                     const publishedAt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt));
                     const readingTime = Math.max(1, Math.ceil(post.conteudo.trim().split(/\s+/).length / 220));
-                    container.innerHTML = `<section class="article-hero">${imageUrl ? `<img class="article-hero-bg" src="${escapeHtml(imageUrl)}" alt="">` : ""}<div class="article-title-card"><a class="breadcrumb" href="../index.html#posts">← Todos os artigos</a><span class="tag">${escapeHtml(post.categoria)}</span><h1>${escapeHtml(post.titulo)}</h1><p class="article-summary">${escapeHtml(post.resumo)}</p><div class="article-meta-row"><span>${publishedAt}</span><span aria-hidden="true">•</span><span>${readingTime} min de leitura</span></div></div></section><div class="article-layout"><article class="article-prose">${formatContent(post.conteudo)}<div class="article-end"><a class="button button-primary" href="../index.html#posts">← Ver mais artigos</a></div></article></div>`;
+                    container.innerHTML = `<div class="reading-progress" aria-hidden="true"><span id="reading-progress-value"></span></div><section class="article-hero">${imageUrl ? `<img class="article-hero-bg" src="${escapeHtml(imageUrl)}" alt="">` : ""}<div class="article-title-card"><a class="breadcrumb" href="../index.html#posts">← Todos os artigos</a><span class="tag">${escapeHtml(post.categoria)}</span><h1>${escapeHtml(post.titulo)}</h1><p class="article-summary">${escapeHtml(post.resumo)}</p><div class="article-meta-row"><span>${publishedAt}</span><span aria-hidden="true">•</span><span>${readingTime} min de leitura</span></div></div></section><div class="article-layout"><div class="article-reading"><article class="article-prose">${formatContent(post.conteudo)}<div class="article-end"><a class="button button-primary" href="../index.html#posts">← Ver mais artigos</a></div></article><aside class="article-sidebar"><nav class="article-toc"><p>Neste artigo</p><div id="article-toc"></div></nav><div class="article-share"><p>Compartilhe</p><button id="share-article" type="button">Compartilhar</button><button id="copy-article-link" type="button">Copiar link</button></div></aside></div><section id="related-posts" class="related-posts" hidden><p class="eyebrow">Continue aprendendo</p><h2>Artigos relacionados</h2><div id="related-grid" class="related-grid"></div></section></div>`;
+                    setupReadingExperience(post);
+                    loadRelatedPosts(post);
                 })
                 .catch(() => { container.innerHTML = '<p class="empty-state">Não foi possível carregar este artigo.</p>'; });
         }
