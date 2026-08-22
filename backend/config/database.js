@@ -41,6 +41,7 @@ async function connectDatabase() {
     await pool.query("CREATE TABLE IF NOT EXISTS reading_progress (user_id UUID NOT NULL, post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE, progress INTEGER NOT NULL DEFAULT 0 CHECK (progress BETWEEN 0 AND 100), updated_at TIMESTAMPTZ DEFAULT NOW(), PRIMARY KEY (user_id, post_id))");
     await pool.query("CREATE TABLE IF NOT EXISTS comments (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE, user_id UUID NOT NULL, author_name VARCHAR(100) NOT NULL, content VARCHAR(1000) NOT NULL, published BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
     await pool.query("CREATE INDEX IF NOT EXISTS comments_post_published_idx ON comments (post_id, published, created_at DESC)");
+    await pool.query("CREATE TABLE IF NOT EXISTS post_views (post_id UUID PRIMARY KEY REFERENCES posts(id) ON DELETE CASCADE, view_count INTEGER NOT NULL DEFAULT 0 CHECK (view_count >= 0), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
     console.log("PostgreSQL (Supabase) conectado.");
 }
 

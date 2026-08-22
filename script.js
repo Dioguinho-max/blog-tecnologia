@@ -6,12 +6,16 @@ const searchInput = document.querySelector("#search-posts");
 const filters = document.querySelectorAll(".filter");
 const count = document.querySelector("#results-count");
 const emptyState = document.querySelector("#empty-state");
+const loadMoreButton = document.querySelector("#load-more-posts");
 const apiBase = window.TECH_IA_API_URL || "/api";
 let activeCategory = "Todos";
 let posts = fallbackPosts;
+let postsPage = 1;
+let postsPages = 1;
 
 function normalizePost(post) {
     return {
+        id: post.id,
         title: post.titulo,
         date: new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(post.createdAt)),
         category: post.categoria,
@@ -26,10 +30,11 @@ function normalizePost(post) {
 
 async function loadPostsFromApi() {
     try {
-        const response = await fetch(`${apiBase}/posts?limit=50`);
+        const response = await fetch(`${apiBase}/posts?limit=12&page=1`);
         if (!response.ok) throw new Error("API indisponível");
         const data = await response.json();
         posts = data.posts?.length ? data.posts.map(normalizePost) : [];
+        postsPage = data.pagination?.page || 1; postsPages = data.pagination?.pages || 1;
     } catch (error) {
         console.error('Erro ao carregar post:', error );
         posts = [];
@@ -78,7 +83,10 @@ function renderPosts() {
       ? "artigo encontrado"
       : "artigos encontrados"
   }`;
+  loadMoreButton.hidden = postsPage >= postsPages;
 }
+
+loadMoreButton.addEventListener("click", async () => { if (postsPage >= postsPages) return; loadMoreButton.disabled = true; loadMoreButton.textContent = "Carregando..."; try { const response = await fetch(`${apiBase}/posts?limit=12&page=${postsPage + 1}`); const data = await response.json(); const known = new Set(posts.map((post) => post.id)); posts.push(...(data.posts || []).map(normalizePost).filter((post) => !known.has(post.id))); postsPage = data.pagination?.page || postsPage + 1; postsPages = data.pagination?.pages || postsPages; renderPosts(); } finally { loadMoreButton.disabled = false; loadMoreButton.textContent = "Carregar mais artigos"; } });
 
 function renderFeatured() {
   if (!posts.length) {

@@ -44,6 +44,25 @@ async function listAdminPosts(req, res, next) {
     } catch (error) { next(error); }
 }
 
+async function adminStats(req, res, next) {
+    try {
+        const result = await pool.query(`SELECT
+            (SELECT COUNT(*) FROM posts WHERE publicado=true)::int AS published,
+            (SELECT COUNT(*) FROM posts WHERE publicado=false)::int AS drafts,
+            (SELECT COUNT(*) FROM comments WHERE published=false)::int AS pending_comments,
+            (SELECT COALESCE(SUM(view_count),0) FROM post_views)::int AS views,
+            (SELECT titulo FROM posts p LEFT JOIN post_views v ON v.post_id=p.id WHERE p.publicado=true ORDER BY COALESCE(v.view_count,0) DESC, p.created_at DESC LIMIT 1) AS top_post`);
+        res.json(result.rows[0]);
+    } catch (error) { next(error); }
+}
+
+async function registerView(req, res, next) {
+    try {
+        await pool.query("INSERT INTO post_views (post_id, view_count) SELECT id, 1 FROM posts WHERE id=$1 AND publicado=true ON CONFLICT (post_id) DO UPDATE SET view_count=post_views.view_count+1, updated_at=NOW()", [req.params.id]);
+        res.status(204).end();
+    } catch (error) { next(error); }
+}
+
 async function createPost(req, res, next) {
     try {
         const data = pickFields(req.body);
@@ -76,4 +95,4 @@ async function deletePost(req, res, next) {
     } catch (error) { next(error); }
 }
 
-module.exports = { listPosts, listAdminPosts, getPost, createPost, updatePost, deletePost };
+module.exports = { listPosts, listAdminPosts, adminStats, registerView, getPost, createPost, updatePost, deletePost };

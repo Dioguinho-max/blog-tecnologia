@@ -70,6 +70,7 @@ h2 { font-size: clamp(1.7rem, 3vw, 2.25rem); letter-spacing: -.035em; }
 .filter { border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; color: var(--muted); background: var(--surface); cursor: pointer; font-size: .88rem; font-weight: 700; }
 .filter:hover, .filter.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .results-count { min-height: 24px; margin: 14px 0 8px; color: var(--muted); font-size: .9rem; }
+.load-more { display: block; margin: 28px auto 0; }
 .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .post-card { display: flex; flex-direction: column; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 12px rgba(15,23,42,.04); transition: box-shadow .25s, transform .25s; }
 .post-card:hover { box-shadow: var(--shadow); transform: translateY(-6px); }
@@ -120,6 +121,7 @@ h2 { font-size: clamp(1.7rem, 3vw, 2.25rem); letter-spacing: -.035em; }
 .form-actions, .admin-title, .admin-post { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .form-message { min-height: 24px; color: #15803d; }.form-message.error { color: #dc2626; }
 .admin-title { margin-bottom: 24px; }.admin-layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; }.admin-post-list { display: grid; gap: 12px; }.admin-post { padding: 14px 0; border-bottom: 1px solid var(--border); }.admin-post p { color: var(--muted); font-size: .85rem; }.danger { color: #dc2626; }
+.admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }.admin-stats article { padding: 15px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }.admin-stats strong, .admin-stats span { display: block; }.admin-stats strong { color: var(--primary); font-size: 1.35rem; }.admin-stats span, .admin-stats > p { color: var(--muted); font-size: .8rem; }.admin-stats > p { grid-column: 1 / -1; }.admin-notice { margin-bottom: 15px; padding: 10px 13px; color: #92400e; border: 1px solid #fbbf24; border-radius: 8px; background: #fef3c7; font-size: .88rem; font-weight: 700; }
 
 /* Estilos para as páginas individuais de artigos. */
 body > header:not(.site-header) { padding: 20px 5%; color: #fff; background: var(--primary); text-align: center; }
