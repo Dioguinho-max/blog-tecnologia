@@ -8,7 +8,7 @@ const DAILY_LIMIT = Math.min(Math.max(Number(process.env.CHAT_DAILY_LIMIT) || 10
 const requestLog = new Map();
 const { pool } = require("../config/database");
 
-const systemPrompt = `Você é a assistente do Tech & IA Blog. Responda sempre em português do Brasil, de forma didática, objetiva e amigável. Seu foco é tecnologia, programação, Linux, APIs e Inteligência Artificial. Use blocos de código Markdown quando isso ajudar. Não invente fatos e indique quando uma informação precisa ser verificada. Seja concisa: prefira no máximo 220 palavras ou 8 tópicos. Sempre conclua a última frase e nunca deixe uma resposta incompleta. Não use linhas separadoras como --- e não inclua explicações sobre o próprio limite de tokens.`;
+const systemPrompt = `Você é a assistente do Tech & IA Blog. Responda sempre em português do Brasil, de forma didática, objetiva e amigável. Seu foco é tecnologia, programação, Linux, APIs e Inteligência Artificial. Não invente fatos e indique quando uma informação precisa ser verificada. Seja concisa: prefira no máximo 160 palavras ou 6 tópicos. Use código somente se for realmente útil; nesse caso, use no máximo 10 linhas e entregue um exemplo completo. Nunca inicie um bloco de código se não puder concluí-lo. Sempre conclua a última frase. Não use linhas separadoras como --- e não inclua explicações sobre o próprio limite de tokens.`;
 
 function isAllowed(req) {
     const now = Date.now();
@@ -74,6 +74,11 @@ async function consumeDailyQuota(sessionId) {
 
 function finishReply(reply, finishReason) {
     if (finishReason !== "length") return reply;
+    const fences = (reply.match(/```/g) || []).length;
+    if (fences % 2) {
+        const beforeCode = reply.slice(0, reply.lastIndexOf("```")).trim();
+        return `${beforeCode}\n\n_Exemplo de código omitido para manter a resposta completa dentro do limite._`;
+    }
     const sentenceEnd = Math.max(reply.lastIndexOf("."), reply.lastIndexOf("!"), reply.lastIndexOf("?"));
     if (sentenceEnd > reply.length * 0.45) {
         return `${reply.slice(0, sentenceEnd + 1)}\n\n_Resposta encurtada para respeitar o limite de uso._`;
