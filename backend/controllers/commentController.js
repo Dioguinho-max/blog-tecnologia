@@ -18,6 +18,21 @@ async function create(req, res, next) {
     } catch (error) { next(error); }
 }
 
+async function listMine(req, res, next) {
+    try {
+        const result = await pool.query("SELECT id, author_name AS \"authorName\", content, published, created_at AS \"createdAt\" FROM comments WHERE post_id=$1 AND user_id=$2 ORDER BY created_at DESC", [req.params.postId, req.reader.id]);
+        res.json({ comments: result.rows });
+    } catch (error) { next(error); }
+}
+
+async function removeMine(req, res, next) {
+    try {
+        const result = await pool.query("DELETE FROM comments WHERE id=$1 AND user_id=$2 RETURNING id", [req.params.id, req.reader.id]);
+        if (!result.rowCount) return res.status(404).json({ message: "Comentário não encontrado." });
+        res.status(204).end();
+    } catch (error) { next(error); }
+}
+
 async function listAdmin(req, res, next) {
     try {
         const result = await pool.query("SELECT c.id, c.author_name AS \"authorName\", c.content, c.published, c.created_at AS \"createdAt\", p.titulo AS \"postTitle\" FROM comments c JOIN posts p ON p.id=c.post_id ORDER BY c.created_at DESC");
@@ -41,4 +56,4 @@ async function remove(req, res, next) {
     } catch (error) { next(error); }
 }
 
-module.exports = { listPublished, create, listAdmin, publish, remove };
+module.exports = { listPublished, create, listMine, removeMine, listAdmin, publish, remove };
